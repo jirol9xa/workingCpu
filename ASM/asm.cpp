@@ -32,10 +32,6 @@ int main(void)
     marks.mark = (Mark *) calloc(10, sizeof(Mark));
     getMarks(&commands, &marks);
     header.code_length += sizeof(Header);
-    for (int i = 0; i < marks.marks_amount; i++)
-    {
-        printf("mark ---> %s - %d\n", marks.mark[i].name, marks.mark[i].ip_number);
-    }
     
     bool is_hlt = 0;
     char *CMD = nullptr;
@@ -65,7 +61,6 @@ int main(void)
         {
             continue;
         }
-        PRINT_LINE();
         #define DEF_CMD(num, name, num_arg, code)                                                           \
         if (strcmp(CMD, #name) == 0)                                                                        \
         {                                                                                                   \
@@ -73,7 +68,6 @@ int main(void)
             {                                                                                               \
                 if (arg_amount == 1)                                                                        \
                 {                                                                                           \
-                    printf("cmd -- %s\n", CMD);                                                             \
                     binary_code[header.code_length++] = num;  /*если обычный пуш*/                          \
                     header.real_length ++;                                                                  \
                     *((int *) (binary_code + header.code_length)) = arg;                                    \
@@ -83,11 +77,9 @@ int main(void)
                 }                                                                                           \
                 else if (num == CMD_JMP)                                                                    \
                 {                                                                                           \
-                    printf("SOSI\nCMD + 1 = %s\n", CMD + 1); \
-                    char mark_name[10] = {}; \
-                    sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); \
-                    printf("%s\n", mark_name);\
-                    writeMark(binary_code, &marks, mark_name, &header);                                       \
+                    char mark_name[10] = {};                                                                \
+                    sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name);                         \
+                    writeMark(binary_code, &marks, mark_name, &header);                                     \
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
@@ -114,7 +106,6 @@ int main(void)
         #undef DEF_CMD
     }
     
-    printf("code_size before writting = %d\n", header.code_length);
     header.code_length -= sizeof(Header);
     *((Header *) binary_code) = header;
     
@@ -144,8 +135,5 @@ int main(void)
         fclose(logs);
     )
 
-    PRINT_LINE();
-    printf("code_size = %d\n", header.code_length);
-    printf("sizeof(Header) = %d\n", sizeof(Header));
     return 0;
 }

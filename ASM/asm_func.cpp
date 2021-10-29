@@ -192,17 +192,13 @@ int getMarks(Text *command, Mark_array *marks)
 
 int writeMark(char *binary_code, Mark_array *marks, char *mark_name, Header *header)
 {   
-    PRINT_LINE();
     for (int i = 0; i < marks->marks_amount; i++)
     {
-        PRINT_LINE();
         if (strcmp(marks->mark[i].name, mark_name) == 0)
         {
-            PRINT_LINE();
             binary_code[header->code_length ++] = CMD_JMP;
             header->real_length ++;
             *((int *) (binary_code + header->code_length)) = marks->mark[i].ip_number;
-            printf("###MARKS###\ncode -- %d, arg -- %d\n", binary_code[header->code_length - 1], binary_code[header->code_length]);
             header->code_length += sizeof(int);
             header->real_length ++;
             return 0;
