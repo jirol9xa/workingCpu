@@ -23,8 +23,8 @@ THE FILE IS GENERATED AUTOMATICALLY!!!!!!!!!
 #include <ctype.h>
 #include <assert.h>
 #include <unistd.h>
-#include "/home/voffk4/cpu/onegin.h"
-#include "/home/voffk4/cpu/stack.h"
+#include "/home/voffk4/Cpu/onegin.h"
+#include "/home/voffk4/Cpu/stack.h"
 
 #define DEBUG_LVL 1
 

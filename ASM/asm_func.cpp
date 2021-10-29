@@ -1,4 +1,4 @@
-#include "/home/voffk4/cpu/ASM/Asm-header.h"
+#include "/home/voffk4/Cpu/ASM/Asm-header.h"
 #include <cmath>
 
 extern FILE *logs;
@@ -160,7 +160,7 @@ int getMarks(Text *command, Mark_array *marks)
             }                                                                                                           \
         }
         
-        #include "/home/voffk4/cpu/commands.h"
+        #include "/home/voffk4/Cpu/commands.h"
         #undef DEF_CMD
         if (command->text[i].string[0] == ':')
         {
@@ -175,8 +175,7 @@ int getMarks(Text *command, Mark_array *marks)
             int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->mark[marks->marks_amount].name);
             if (sscanf_status)
             {
-                PRINT_LINE();
-                getMarks_ip += sizeof(int) + 1;
+                //getMarks_ip += sizeof(int) + 1;
                 marks->mark[marks->marks_amount++].ip_number = getMarks_ip;
             }
             else
@@ -200,14 +199,13 @@ int writeMark(char *binary_code, Mark_array *marks, char *mark_name, Header *hea
         if (strcmp(marks->mark[i].name, mark_name) == 0)
         {
             PRINT_LINE();
-            binary_code[header->code_length ++] = CMD_MRK;
+            binary_code[header->code_length ++] = CMD_JMP;
             header->real_length ++;
             *((int *) (binary_code + header->code_length)) = marks->mark[i].ip_number;
+            printf("###MARKS###\ncode -- %d, arg -- %d\n", binary_code[header->code_length - 1], binary_code[header->code_length]);
             header->code_length += sizeof(int);
             header->real_length ++;
             return 0;
         }
     }
-
-    return 0;
 }

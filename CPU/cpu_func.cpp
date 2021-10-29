@@ -1,4 +1,4 @@
-#include "/home/voffk4/cpu/CPU/cpu_header.h"
+#include "/home/voffk4/Cpu/CPU/cpu_header.h"
 
 extern FILE *logs;
 
@@ -59,11 +59,8 @@ int processing(Header *header, char *code, CPU *cpu)
     CHECK_PTR(code);
     CHECK_PTR(cpu);
     cpu->ip = 0;
-    PRINT_LINE();
-    printf("code_length -- %d\n", header->code_length);
     while (cpu->ip < header->code_length)
     {
-        PRINT_LINE();
         switch (code[cpu->ip++] & 31)
         {
 
@@ -74,10 +71,9 @@ int processing(Header *header, char *code, CPU *cpu)
                 cmd_code;                                                                                        \
             break;
 
-            #include "/home/voffk4/cpu/commands.h"
+            #include "/home/voffk4/Cpu/commands.h"
             #undef DEF_CMD
         }
     }
-    PRINT_LINE();
     return 0;
 }

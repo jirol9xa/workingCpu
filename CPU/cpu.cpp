@@ -1,10 +1,10 @@
-#include "/home/voffk4/cpu/CPU/cpu_header.h"
+#include "/home/voffk4/Cpu/CPU/cpu_header.h"
 
 FILE *logs = fopen("logs", "w");
 
 int main(void)
 {
-    FILE *Code = fopen("/home/voffk4/cpu/ASM/Binary", "r");
+    FILE *Code = fopen("/home/voffk4/Cpu/ASM/Binary", "r");
     CHECK_PTR(Code);
 
     Header header = {};

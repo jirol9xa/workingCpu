@@ -36,6 +36,7 @@ DEF_CMD(3, OUT,  0, {
     int value = 0;
     stackPop(&(cpu->stk), &value);
     printf("%d\n", value);
+    stackPush(&(cpu->stk), value);
 })
 DEF_CMD(4, ADD,  0, {
     int first = 0;
@@ -89,8 +90,9 @@ DEF_CMD(8, POP,  1,
 DEF_CMD(9, JMP,  1,
 {
     cpu->ip = *((int *) (code + cpu->ip));
+    is_debug_lvl_0(cpu->real_ip ++);
 })
 DEF_CMD(10, MRK, 1,
 {
-    cpu->ip += sizeof(int) + 1;
+    ;
 })

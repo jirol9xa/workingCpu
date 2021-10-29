@@ -1,4 +1,4 @@
-#include "/home/voffk4/cpu/config.h"
+#include "/home/voffk4/Cpu/config.h"
 
 struct CPU {
     int regs[4];    //ax, bx, cx, dx

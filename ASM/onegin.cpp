@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
-#include "/home/voffk4/cpu/onegin.h"
+#include "/home/voffk4/Cpu/onegin.h"
                                                             
 static int swap(void* from, void* to);
 static char* is_bad_symbol(char symbol);

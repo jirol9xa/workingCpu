@@ -1,4 +1,4 @@
-#include "/home/voffk4/cpu/ASM/Asm-header.h"
+#include "/home/voffk4/Cpu/ASM/Asm-header.h"
 
 FILE *logs = fopen("logs", "w");
 const int is_reg = 32;  //при использовании регистра
@@ -8,7 +8,7 @@ is_debug_lvl_0( FILE *listing = fopen("Listing", "w") );
 
 int main(void)
 {   
-    FILE *sourse = fopen("Sourse", "r");
+    FILE *sourse = fopen("/home/voffk4/Cpu/ASM/Sourse", "r");
     FILE *binary = fopen("Binary", "wb");
 
     is_debug_lvl_0(
@@ -32,11 +32,14 @@ int main(void)
     marks.mark = (Mark *) calloc(10, sizeof(Mark));
     getMarks(&commands, &marks);
     header.code_length += sizeof(Header);
+    for (int i = 0; i < marks.marks_amount; i++)
+    {
+        printf("mark ---> %s - %d\n", marks.mark[i].name, marks.mark[i].ip_number);
+    }
     
     bool is_hlt = 0;
     char *CMD = nullptr;
     CMD = (char *) calloc(32, sizeof(char));
-    PRINT_LINE();
 
     for (int i = 0; i < commands.string_amount; i++)
     {   
@@ -60,8 +63,6 @@ int main(void)
 
         if (CMD[0] == ':')
         {
-            PRINT_LINE();
-            writeMark(binary_code, &marks, CMD + 1, &header);
             continue;
         }
         PRINT_LINE();
@@ -79,7 +80,14 @@ int main(void)
                     list(CMD, &arg, binary_code[header.code_length - 1], 0);                                \
                     header.code_length += sizeof(int);                                                      \
                     header.real_length ++;                                                                  \
-                    printf("PIPISKA\n"); \
+                }                                                                                           \
+                else if (num == CMD_JMP)                                                                    \
+                {                                                                                           \
+                    printf("SOSI\nCMD + 1 = %s\n", CMD + 1); \
+                    char mark_name[10] = {}; \
+                    sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); \
+                    printf("%s\n", mark_name);\
+                    writeMark(binary_code, &marks, mark_name, &header);                                       \
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
@@ -96,7 +104,7 @@ int main(void)
         }                                                                                                   \
         else   
 
-        #include "/home/voffk4/cpu/commands.h"
+        #include "/home/voffk4/Cpu/commands.h"
 
         /*else*/
         {

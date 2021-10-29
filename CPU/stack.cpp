@@ -1,4 +1,4 @@
-#include "/home/voffk4/cpu/stack.h"
+#include "/home/voffk4/Cpu/stack.h"
 extern FILE* logs;
 
 /*!
