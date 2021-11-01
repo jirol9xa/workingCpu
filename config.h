@@ -28,6 +28,7 @@ THE FILE IS GENERATED AUTOMATICALLY!!!!!!!!!
 
 #define DEBUG_LVL 1
 
+
 enum COMMANDS
 {
     CMD_IN   = 0,
@@ -40,9 +41,14 @@ enum COMMANDS
     CMD_DIV  = 7,
     CMD_POP  = 8,
     CMD_JMP  = 9,
-    CMD_MRK  = 10
+    CMD_MRK  = 10,
+    CMD_JA   = 11,
+    CMD_JAE  = 12,
+    CMD_JB   = 13,
+    CMD_JBE  = 14,
+    CMD_JE   = 15,
+    CMD_JNE  = 16
 };
-
 
 struct Header
 {
@@ -52,6 +58,7 @@ struct Header
     int code_length;
     int real_length;
 };
+
 
 #define MEMCPY(type, arg)                                                            \
 {                                                                                    \

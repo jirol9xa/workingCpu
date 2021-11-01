@@ -1,0 +1,158 @@
+# 1 "Asm_main.cpp"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 1 "<command-line>" 2
+# 1 "Asm_main.cpp"
+
+
+is_debug_lvl_0(
+    FILE *logs = fopen("logs", "w");
+    FILE *listing = fopen("Listing", "w");
+)
+int is_reg = 1 << 5;
+int is_ram = 1 << 6;
+
+
+int main(void)
+{
+    FILE *sourse = fopen("/home/voffk4/Cpu/ASM/Sourse", "r");
+    FILE *binary = fopen("Binary", "wb");
+
+    is_debug_lvl_0(
+        CHECK_PTR(sourse);
+        CHECK_PTR(binary);
+    )
+
+    Text commands = {};
+
+    constructText(sourse, &commands);
+
+    char *binary_code = (char *) calloc(commands.string_amount * 2, sizeof(int));
+    is_debug_lvl_0(CHECK_PTR(binary_code));
+
+    Header header = {};
+    header.sign = 'HM';
+    header.ver = 0;
+    header.hash = 0;
+
+    Label_array marks = {};
+    marks.mark = (Label *) calloc(10, sizeof(Label));
+    getMarks(&commands, &marks);
+    header.code_length += sizeof(Header);
+
+    bool is_hlt = 0;
+    char *CMD = nullptr;
+    CMD = (char *) calloc(32, sizeof(char));
+
+    for (int i = 0; i < commands.string_amount; i++)
+    {
+        int arg = 0;
+        char regsRAM[32] = {};
+        int arg_amount = sscanf(commands.text[i].string, "%s %d", CMD, &arg) - 1;
+
+        if (arg_amount < 0)
+        {
+            is_debug_lvl_0(
+                PRINT_RESHETKA(logs);
+                fprintf(logs, "not valid format for command\n");
+                PRINT_RESHETKA(logs);
+            )
+        }
+        else if (arg_amount == 0)
+        {
+            if (getLine(regsRAM, commands.text[i].string + strlen(CMD)) > 0)
+            {
+                arg_amount = -1;
+            }
+        }
+
+        if (CMD[0] == ':') continue;
+# 102 "Asm_main.cpp"
+# 1 "/home/voffk4/Cpu/commands.inc" 1
+# 15 "/home/voffk4/Cpu/commands.inc"
+if (strcmp(CMD, "IN") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 0; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (0 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 0); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_IN; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+# 24 "/home/voffk4/Cpu/commands.inc"
+if (strcmp(CMD, "HLT") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 1; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (1 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 1); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_HLT; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+if (strcmp(CMD, "PUSH") == 0) { if (1 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 2; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (2 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 2); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_PUSH; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+# 49 "/home/voffk4/Cpu/commands.inc"
+if (strcmp(CMD, "OUT") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 3; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (3 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 3); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_OUT; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+
+if (strcmp(CMD, "ADD") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 4; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (4 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 4); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_ADD; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+
+
+if (strcmp(CMD, "SUB") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 5; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (5 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 5); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_SUB; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+
+
+if (strcmp(CMD, "MUL") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 6; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (6 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 6); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_MUL; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+
+
+if (strcmp(CMD, "DIV") == 0) { if (0 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 7; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (7 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 7); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_DIV; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+
+
+if (strcmp(CMD, "POP") == 0) { if (1 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 8; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (8 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 8); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_POP; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+# 104 "/home/voffk4/Cpu/commands.inc"
+if (strcmp(CMD, "JMP") == 0) { if (1 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 9; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (9 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 9); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_JMP; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+if (strcmp(CMD, "MRK") == 0) { if (1 == 1) { if (arg_amount == 1) { binary_code[header.code_length++] = 10; header.real_length ++; *((int *) (binary_code + header.code_length)) = arg; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); header.code_length += sizeof(int); header.real_length ++; } else if (10 == CMD_JMP) { char mark_name[10] = {}; sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name); writeMark(binary_code, &marks, mark_name, &header); } else if (arg_amount == -1) { regsAndRAM(regsRAM, &(header), binary_code, 10); is_debug_lvl_0(list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1)); } } else { binary_code[header.code_length++] = CMD_MRK; header.real_length ++; is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0)); } } else
+
+
+
+
+DEF_CMD;
+DEF_CMD;
+DEF_CMD;
+DEF_CMD;
+DEF_CMD;
+DEF_CMD;
+# 103 "Asm_main.cpp" 2
+
+
+        {
+            printf("ERROR\n");
+        }
+
+
+    }
+
+    header.code_length -= sizeof(Header);
+    *((Header *) binary_code) = header;
+# 130 "Asm_main.cpp"
+    fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
+
+    free(binary_code);
+    fclose(sourse);
+    fclose(binary);
+    finish_poem(&commands);
+    is_debug_lvl_0(
+        fclose(listing);
+        fclose(logs);
+    )
+
+    return 0;
+}

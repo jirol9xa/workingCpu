@@ -1,10 +1,12 @@
-#include "/home/voffk4/Cpu/ASM/Asm-header.h"
+#include "/home/voffk4/Cpu/ASM/Asm.h"
 
-FILE *logs = fopen("logs", "w");
-const int is_reg = 32;  //при использовании регистра
-const int is_ram = 64;  //при использовании оперативки
+is_debug_lvl_0(
+    FILE *logs = fopen("logs", "w");
+    FILE *listing = fopen("Listing", "w"); 
+)
+int is_reg = 1 << 5;  //при использовании регистра
+int is_ram = 1 << 6;  //при использовании оперативки
 
-is_debug_lvl_0( FILE *listing = fopen("Listing", "w") );
 
 int main(void)
 {   
@@ -28,8 +30,8 @@ int main(void)
     header.ver = 0;
     header.hash = 0;
 
-    Mark_array marks = {};
-    marks.mark = (Mark *) calloc(10, sizeof(Mark));
+    Label_array marks = {};
+    marks.mark = (Label *) calloc(10, sizeof(Label));
     getMarks(&commands, &marks);
     header.code_length += sizeof(Header);
     
@@ -45,22 +47,22 @@ int main(void)
 
         if (arg_amount < 0)
         {
-            PRINT_RESHETKA(logs);
-            fprintf(logs, "not valid format for command\n");
-            PRINT_RESHETKA(logs);
+            is_debug_lvl_0(
+                PRINT_RESHETKA(logs);
+                fprintf(logs, "not valid format for command\n");
+                PRINT_RESHETKA(logs);
+            )
         }
         else if (arg_amount == 0)
         {
-            if (GetLine(regsRAM, commands.text[i].string + strlen(CMD)) > 0)
+            if (getLine(regsRAM, commands.text[i].string + strlen(CMD)) > 0)
             {
                 arg_amount = -1;
             }
         }
 
-        if (CMD[0] == ':')
-        {
-            continue;
-        }
+        if (CMD[0] == ':') continue;
+
         #define DEF_CMD(num, name, num_arg, code)                                                           \
         if (strcmp(CMD, #name) == 0)                                                                        \
         {                                                                                                   \
@@ -71,32 +73,34 @@ int main(void)
                     binary_code[header.code_length++] = num;  /*если обычный пуш*/                          \
                     header.real_length ++;                                                                  \
                     *((int *) (binary_code + header.code_length)) = arg;                                    \
-                    list(CMD, &arg, binary_code[header.code_length - 1], 0);                                \
+                    is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                \
                     header.code_length += sizeof(int);                                                      \
                     header.real_length ++;                                                                  \
                 }                                                                                           \
-                else if (num == CMD_JMP)                                                                    \
+                else if (num == CMD_JMP || num == CMD_JA || num == CMD_JAE || num == CMD_JB ||              \
+                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE)                                 \
                 {                                                                                           \
                     char mark_name[10] = {};                                                                \
                     sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name);                         \
-                    writeMark(binary_code, &marks, mark_name, &header);                                     \
+                    writeMark(binary_code, &marks, mark_name, &header, num);                                \
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
                     regsAndRAM(regsRAM, &(header), binary_code, num);                                       \
-                    list(CMD, regsRAM, (int) *(binary_code + header.code_length - sizeof(int) - 1), 1);     \
+                    is_debug_lvl_0(list(CMD, regsRAM,                                                       \
+                                   (int) *(binary_code + header.code_length - sizeof(int) - 1), 1));        \
                 }                                                                                           \
             }                                                                                               \
             else                                                                                            \
             {                                                                                               \
                 binary_code[header.code_length++] = CMD_##name;                                             \
                 header.real_length ++;                                                                      \
-                list(CMD, &arg, binary_code[header.code_length - 1], 0);                                    \
+                is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                    \
             }                                                                                               \
         }                                                                                                   \
         else   
 
-        #include "/home/voffk4/Cpu/commands.h"
+        #include "/home/voffk4/Cpu/commands.inc"
 
         /*else*/
         {

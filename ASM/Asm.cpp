@@ -1,7 +1,13 @@
-#include "/home/voffk4/Cpu/ASM/Asm-header.h"
+#include "/home/voffk4/Cpu/ASM/Asm.h"
 #include <cmath>
 
-extern FILE *logs;
+is_debug_lvl_0(
+    extern FILE *logs;
+    extern FILE *listing
+);
+
+extern int is_reg; //32
+extern int is_ram; // 64
 
 
 static int Atoi(char *number, int size = 0)
@@ -19,7 +25,7 @@ static int Atoi(char *number, int size = 0)
 }
 
 
-#if DEBUG_LVL > 0
+is_debug_lvl_0(
     /*!
         \brief  Функция печати листинга
         \param  [char *]CODE массив с кодом
@@ -40,7 +46,6 @@ static int Atoi(char *number, int size = 0)
         }
         else
         {
-            PRINT_LINE();
             char *Arg = (char *) arg;
             if (Arg[0] == '[')
             {
@@ -69,14 +74,14 @@ static int Atoi(char *number, int size = 0)
                 break;
         }
     }
-#endif
+)
 
 
 /*!
     \brief  Функция считывания строки
     \param  [char *]arg Строка, 
 */
-int GetLine(char *dest, char *sourse)
+int getLine(char *dest, char *sourse)
 {
     int i = 0, j = 0;
 
@@ -98,7 +103,7 @@ int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
 {
     if (regsRAM[0] == '[')
     {
-        code[header->code_length++] = (num | 64);
+        code[header->code_length++] = (num | is_ram);
         header->real_length ++;
         int adress = Atoi(regsRAM + 1, strlen(regsRAM) - 2);
         *((int*) (code + header->code_length)) = adress;
@@ -107,7 +112,7 @@ int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
         header->real_length ++;
     }
     else{
-        code[header->code_length++] = (num | 32);
+        code[header->code_length++] = (num | is_reg);
         header->real_length ++;
         switch(regsRAM[0])
         {
@@ -140,7 +145,7 @@ int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
 }
 
 
-int getMarks(Text *command, Mark_array *marks)
+int getMarks(Text *command, Label_array *marks)
 {
     int getMarks_ip = 0;
 
@@ -160,15 +165,15 @@ int getMarks(Text *command, Mark_array *marks)
             }                                                                                                           \
         }
         
-        #include "/home/voffk4/Cpu/commands.h"
+        #include "/home/voffk4/Cpu/commands.inc"
         #undef DEF_CMD
         if (command->text[i].string[0] == ':')
         {
             if (marks->marks_amount + 1 < marks->capacity)
             {
                 void *temp_ptr = nullptr;
-                temp_ptr = realloc(marks->mark, sizeof(Mark) * marks->capacity * 2);
-                marks->mark = (Mark *) temp_ptr;
+                temp_ptr = realloc(marks->mark, sizeof(Label) * marks->capacity * 2);
+                marks->mark = (Label *) temp_ptr;
                 marks->capacity *= 2;
             }
 
@@ -190,13 +195,13 @@ int getMarks(Text *command, Mark_array *marks)
 }
 
 
-int writeMark(char *binary_code, Mark_array *marks, char *mark_name, Header *header)
+int writeMark(char *binary_code, Label_array *marks, char *mark_name, Header *header, int CMD_TYPEJUMP)
 {   
     for (int i = 0; i < marks->marks_amount; i++)
     {
         if (strcmp(marks->mark[i].name, mark_name) == 0)
         {
-            binary_code[header->code_length ++] = CMD_JMP;
+            binary_code[header->code_length ++] = CMD_TYPEJUMP;
             header->real_length ++;
             *((int *) (binary_code + header->code_length)) = marks->mark[i].ip_number;
             header->code_length += sizeof(int);

@@ -1,11 +1,12 @@
-#include "/home/voffk4/Cpu/CPU/cpu_header.h"
+#include "/home/voffk4/Cpu/CPU/Cpu.h"
 
-FILE *logs = fopen("logs", "w");
+is_debug_lvl_0(FILE *logs = fopen("logs", "w"));
+
 
 int main(void)
 {
     FILE *Code = fopen("/home/voffk4/Cpu/ASM/Binary", "r");
-    CHECK_PTR(Code);
+    is_debug_lvl_0(CHECK_PTR(Code));
 
     Header header = {};
 
@@ -25,22 +26,19 @@ int main(void)
             free(binary_code);
             stackDtor(&cpu.stk);
             fclose(Code);
-            #if DEBUG_LVL > 0
-                fclose(logs);
-            #endif
+            is_debug_lvl_0(fclose(logs));
+            return 0;
         }
     }  
     else
     {
-        #if DEBUG_LVL > 0
+        is_debug_lvl_0(
             fprintf(logs, "\n\n##################################################" 
                             "\n\nERR_WRONG_SIGNATURE\n\n"
                             "##################################################\n");
-        #endif
+        )
         fclose(Code);
-        #if DEBUG_LVL > 0
-            fclose(logs);
-        #endif
+        is_debug_lvl_0(fclose(logs));
     }
 
     return 0;
