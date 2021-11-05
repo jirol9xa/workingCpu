@@ -1,15 +1,24 @@
-#include "/home/voffk4/Cpu/ASM/Asm.h"
+#include "../config.h"
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdio.h>
+#include <cmath>
 
-is_debug_lvl_0(
+
+#if DEBUG_LVL > 0
     FILE *logs = fopen("logs", "w");
     FILE *listing = fopen("Listing", "w"); 
-)
-int is_reg = 1 << 5;  //при использовании регистра
-int is_ram = 1 << 6;  //при использовании оперативки
+#endif
+
+#include "../textLib.h"
+#include "../stackLib.h"
+#include "../ASM/Asm.h"
 
 
 int main(void)
 {   
+    PRINT_LINE();
     FILE *sourse = fopen("/home/voffk4/Cpu/ASM/Sourse", "r");
     FILE *binary = fopen("Binary", "wb");
 
@@ -22,7 +31,7 @@ int main(void)
 
     constructText(sourse, &commands);
 
-    char *binary_code = (char *) calloc(commands.string_amount * 2, sizeof(int));
+    char *binary_code = (char *) calloc(commands.string_amount * 2, sizeof(type_t));
     is_debug_lvl_0(CHECK_PTR(binary_code));
     
     Header header = {};
@@ -31,14 +40,15 @@ int main(void)
     header.hash = 0;
 
     Label_array marks = {};
-    marks.mark = (Label *) calloc(10, sizeof(Label));
-    getMarks(&commands, &marks);
+    marks.label = (Label *) calloc(1, sizeof(Label));
+    getLabeles(&commands, &marks);
     header.code_length += sizeof(Header);
     
     bool is_hlt = 0;
     char *CMD = nullptr;
+    PRINT_LINE();
     CMD = (char *) calloc(32, sizeof(char));
-
+    PRINT_LINE();
     for (int i = 0; i < commands.string_amount; i++)
     {   
         int arg = 0;
@@ -61,8 +71,26 @@ int main(void)
             }
         }
 
-        if (CMD[0] == ':') continue;
-
+        if (CMD[0] == ':')
+        {
+            if (strncmp(CMD, ":CALL", strlen(":CALL")) == 0)
+            {
+                char func_name[100] = {};
+                if (sscanf(CMD + strlen(":CALL "), "%s", func_name))
+                {
+                    binary_code[header.code_length ++] = CMD_CALL;
+                    header.real_length ++;
+                    writeCall(func_name, &marks, &header, binary_code);
+                }
+            }
+            else if (strncmp(CMD, ":RET", strlen(":RET")) == 0)
+            {
+                binary_code[header.code_length ++] = CMD_RET;
+                header.real_length ++;
+            }
+            
+            continue;
+        }
         #define DEF_CMD(num, name, num_arg, code)                                                           \
         if (strcmp(CMD, #name) == 0)                                                                        \
         {                                                                                                   \
@@ -70,7 +98,7 @@ int main(void)
             {                                                                                               \
                 if (arg_amount == 1)                                                                        \
                 {                                                                                           \
-                    binary_code[header.code_length++] = num;  /*если обычный пуш*/                          \
+                    binary_code[header.code_length ++] = num;  /*если обычный пуш*/                         \
                     header.real_length ++;                                                                  \
                     *((int *) (binary_code + header.code_length)) = arg;                                    \
                     is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                \
@@ -78,11 +106,11 @@ int main(void)
                     header.real_length ++;                                                                  \
                 }                                                                                           \
                 else if (num == CMD_JMP || num == CMD_JA || num == CMD_JAE || num == CMD_JB ||              \
-                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE)                                 \
+                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE || num == CMD_CALL)              \
                 {                                                                                           \
-                    char mark_name[10] = {};                                                                \
+                    char mark_name[32] = {};                                                                \
                     sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name);                         \
-                    writeMark(binary_code, &marks, mark_name, &header, num);                                \
+                    writeLabel(binary_code, &marks, mark_name, &header, num);                               \
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
@@ -104,7 +132,7 @@ int main(void)
 
         /*else*/
         {
-            printf("ERROR\n");
+            printf("ERROR %s\n", CMD);
         }
 
         #undef DEF_CMD
@@ -133,7 +161,7 @@ int main(void)
     free(binary_code);
     fclose(sourse);
     fclose(binary);
-    finish_poem(&commands);
+    finish_text(&commands);
     is_debug_lvl_0(
         fclose(listing);
         fclose(logs);

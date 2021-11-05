@@ -16,18 +16,12 @@ THE FILE IS GENERATED AUTOMATICALLY!!!!!!!!!
 */
 
 
+#define DEBUG_LVL 3
 
+typedef int type_t;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-#include <unistd.h>
-#include "/home/voffk4/Cpu/onegin.h"
-#include "/home/voffk4/Cpu/stack.h"
-
-#define DEBUG_LVL 1
-
+const int is_reg = 1 << 5;  //при использовании регистра
+const int is_ram = 1 << 6;  //при использовании оперативки
 
 enum COMMANDS
 {
@@ -47,7 +41,9 @@ enum COMMANDS
     CMD_JB   = 13,
     CMD_JBE  = 14,
     CMD_JE   = 15,
-    CMD_JNE  = 16
+    CMD_JNE  = 16,
+    CMD_CALL = 17,
+    CMD_RET  = 18
 };
 
 struct Header
@@ -62,8 +58,8 @@ struct Header
 
 #define MEMCPY(type, arg)                                                            \
 {                                                                                    \
-    MemCpy(CODE + code_size, &arg, sizeof(type));                                    \
-    code_size += sizeof(type);                                                       \
+    MemCpy(CODE + code_size, &arg, sizeof(type_t));                                    \
+    code_size += sizeof(type_t);                                                       \
 }            
 
 #if DEBUG_LVL > 0

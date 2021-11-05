@@ -1,8 +1,6 @@
 #ifndef Cpu.H
     #define Cpu.H
 
-    #include "/home/voffk4/Cpu/config.h"
-
 
     struct CPU {
         int regs[4];    //ax, bx, cx, dx
@@ -10,6 +8,7 @@
         int ip;
         int RAM[1000];
         int code_size;
+        Stack ret;
         is_debug_lvl_0(
         int real_size;
         int real_ip;
@@ -18,9 +17,7 @@
 
 
     int processing(Header *header, char *code, CPU *cpu);
+    int createCpu(CPU *cpu);
 
-    #define CREATE_CPU(name)                                                                            \
-        CPU name = {};                                                                                  \
-        stackCtor(&name.stk, 0);                                                                           
 #endif
 

@@ -1,2 +1,2 @@
 all:
-	g++ Asm_main.cpp onegin.cpp stack.cpp Asm.cpp -o asm -w
+	g++ Asm_main.cpp Asm.cpp -o asm -w

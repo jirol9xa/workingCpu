@@ -1,13 +1,20 @@
-#include "/home/voffk4/Cpu/ASM/Asm.h"
+#include "../config.h"
+#include <stdio.h>
 #include <cmath>
+#include <string.h>
+#include <cstring>
+#include <ctype.h>
 
-is_debug_lvl_0(
+#if DEBUG_LVL > 0
     extern FILE *logs;
-    extern FILE *listing
-);
+    extern FILE *listing;
+#endif
 
-extern int is_reg; //32
-extern int is_ram; // 64
+
+#include "/home/voffk4/Cpu/textLib.h"
+#include "/home/voffk4/Cpu/stackLib.h"
+#include "Asm.h"
+
 
 
 static int Atoi(char *number, int size = 0)
@@ -145,43 +152,58 @@ int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
 }
 
 
-int getMarks(Text *command, Label_array *marks)
+int getLabeles(Text *command, Label_array *marks)
 {
     int getMarks_ip = 0;
 
     for (int i = 0; i < command->string_amount; i++)
     {
-
-        #define DEF_CMD(num, name, num_arg, code)                                                                       \
-        if (strncmp(#name, command->text[i].string, strlen(#name)) == 0)                                                \
-        {                                                                                                               \
-            if (num_arg > 0)                                                                                            \
-            {                                                                                                           \
-                getMarks_ip += 1 + sizeof(int);                                                                         \
-            }                                                                                                           \
-            else                                                                                                        \
-            {                                                                                                           \
-                getMarks_ip ++;                                                                                         \
-            }                                                                                                           \
+        bool is_call = false;
+        if (strncmp(command->text[i].string, ":CALL", strlen(":CALL")) == 0)
+        {
+            PRINT_LINE();
+            is_call = true;
+            getMarks_ip += 1 + sizeof(int);
         }
-        
-        #include "/home/voffk4/Cpu/commands.inc"
-        #undef DEF_CMD
-        if (command->text[i].string[0] == ':')
+        else if (strncmp(command->text[i].string, ":RET", strlen(":RET")) == 0)
+        {
+            is_call = true;
+            getMarks_ip ++;
+            PRINT_LINE();
+        }
+        else
+        {
+            #define DEF_CMD(num, name, num_arg, code)                                                                       \
+            if (strncmp(#name, command->text[i].string, strlen(#name)) == 0)                                                \
+            {                                                                                                               \
+                if (num_arg > 0)                                                                                            \
+                {                                                                                                           \
+                    getMarks_ip += 1 + sizeof(type_t);                                                                         \
+                }                                                                                                           \
+                else                                                                                                        \
+                {                                                                                                           \
+                    getMarks_ip ++;                                                                                         \
+                }                                                                                                           \
+            }
+            
+            #include "/home/voffk4/Cpu/commands.inc"
+            #undef DEF_CMD
+        }
+        if (command->text[i].string[0] == ':' && !is_call)
         {
             if (marks->marks_amount + 1 < marks->capacity)
             {
                 void *temp_ptr = nullptr;
-                temp_ptr = realloc(marks->mark, sizeof(Label) * marks->capacity * 2);
-                marks->mark = (Label *) temp_ptr;
+                temp_ptr = realloc(marks->label, sizeof(Label) * marks->capacity * 2);
+                marks->label = (Label *) temp_ptr;
                 marks->capacity *= 2;
             }
 
-            int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->mark[marks->marks_amount].name);
+            int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->marks_amount].name);
             if (sscanf_status)
             {
                 //getMarks_ip += sizeof(int) + 1;
-                marks->mark[marks->marks_amount++].ip_number = getMarks_ip;
+                marks->label[marks->marks_amount++].ip_number = getMarks_ip;
             }
             else
             {
@@ -191,19 +213,39 @@ int getMarks(Text *command, Label_array *marks)
         }
     }
 
+    for (int i = 0; i < marks->marks_amount; i++)
+    {
+        printf("label = %s\n", marks->label[i].name);
+    }
+    PRINT_LINE();
     return 0;
 }
 
 
-int writeMark(char *binary_code, Label_array *marks, char *mark_name, Header *header, int CMD_TYPEJUMP)
+int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *header, int CMD_TYPEJUMP)
 {   
     for (int i = 0; i < marks->marks_amount; i++)
     {
-        if (strcmp(marks->mark[i].name, mark_name) == 0)
+        if (strcmp(marks->label[i].name, mark_name) == 0)
         {
             binary_code[header->code_length ++] = CMD_TYPEJUMP;
             header->real_length ++;
-            *((int *) (binary_code + header->code_length)) = marks->mark[i].ip_number;
+            *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
+            header->code_length += sizeof(int);
+            header->real_length ++;
+            return 0;
+        }
+    }
+}
+
+
+int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_code)
+{
+    for (int i = 0; i < marks->marks_amount; i++)
+    {
+        if (strcmp(marks->label[i].name, func_name) == 0)
+        {
+            *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
             header->code_length += sizeof(int);
             header->real_length ++;
             return 0;

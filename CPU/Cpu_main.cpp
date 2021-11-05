@@ -1,6 +1,18 @@
-#include "/home/voffk4/Cpu/CPU/Cpu.h"
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cmath>
+#include "../config.h"
 
-is_debug_lvl_0(FILE *logs = fopen("logs", "w"));
+#if DEBUG_LVL > 0
+    FILE *logs = fopen("logs", "w");
+#endif
+
+#include "../textLib.h"
+#include "../stackLib.h"
+#include "../ASM/Asm.h"
+#include "Cpu.h"
 
 
 int main(void)
@@ -17,7 +29,8 @@ int main(void)
         char *binary_code = (char *) calloc(header.code_length + 1, sizeof(char));
         fread(binary_code, header.code_length, sizeof(char), Code);
 
-        CREATE_CPU(cpu);
+        CPU cpu = {};
+        createCpu(&cpu);
         cpu.code_size = header.code_length;
         cpu.real_size = header.real_length;
 
@@ -25,6 +38,7 @@ int main(void)
         {
             free(binary_code);
             stackDtor(&cpu.stk);
+            stackDtor(&cpu.ret);
             fclose(Code);
             is_debug_lvl_0(fclose(logs));
             return 0;

@@ -1,10 +1,6 @@
 #ifndef ASM.H
     #define ASM.h
 
-    #include "/home/voffk4/Cpu/config.h"
-    #include <string.h>
-
-
     struct Label
     {
         char name[10];
@@ -13,7 +9,7 @@
 
     struct Label_array
     {
-        Label *mark;
+        Label *label;
         int  marks_amount;
         int capacity;
     };
@@ -34,7 +30,8 @@
 
     int regsAndRAM(char *regsRAM, Header *header, char *code, int num);
 
-    int getMarks(Text *command, Label_array *marks);
+    int getLabeles(Text *command, Label_array *lables);
+    int writeLabel(char *binary_code, Label_array *lables, char *label_name, Header *header, int CMD_TYPEJUMP);
+    int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_code);
 
-    int writeMark(char *binary_code, Label_array *marks, char *mark_name, Header *header, int CMD_TYPEJUMP);
 #endif

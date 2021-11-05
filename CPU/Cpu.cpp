@@ -1,9 +1,18 @@
-#include "/home/voffk4/Cpu/CPU/Cpu.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <cmath>
+#include "../config.h"
 
-const int is_reg = 1 << 5;  //при использовании регистра
-const int is_ram = 1 << 6;  //при использовании оперативки
+#if DEBUG_LVL > 0
+    extern FILE *logs;
+#endif
 
-is_debug_lvl_0(extern FILE *logs);
+#include "../textLib.h"
+#include "../stackLib.h"
+#include "../ASM/Asm.h"
+#include "Cpu.h"
 
 
 is_debug_lvl_0(
@@ -50,6 +59,16 @@ is_debug_lvl_0(
 )
 
 
+int createCpu(CPU *cpu)
+{
+    CHECK_PTR(cpu);
+
+    stackCtor(&(cpu->stk), 0);
+    stackCtor(&(cpu->ret), 0);
+    return 0;
+}
+
+
 /*!
     \brief  Функция работы процессора
     \param  [Header *]header Указатель на
@@ -69,7 +88,7 @@ int processing(Header *header, char *code, CPU *cpu)
     cpu->ip = 0;
     while (cpu->ip < header->code_length)
     {
-        switch (code[cpu->ip++] & 31)
+        switch (code[cpu->ip++] & (is_reg - 1))
         {
 
             #define DEF_CMD(num, name, num_args, cmd_code)                                                       \
@@ -79,7 +98,7 @@ int processing(Header *header, char *code, CPU *cpu)
                 cmd_code;                                                                                        \
             break;
 
-            #include "/home/voffk4/Cpu/commands.inc"
+            #include "../commands.inc"
             #undef DEF_CMD
         }
     }
