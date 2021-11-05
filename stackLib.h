@@ -279,7 +279,7 @@
         if (stk->size + 1 > stk->capacity) {
             if (stackResize(stk, 1) == ERR_RESIZE_FAILED) {
                 is_debug_lvl_0(
-                fprintf(logs, "Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
+                fprintf(stackLibLogs, "Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
                 )
 
                 return ERR_PUSH_FAILED;
@@ -462,26 +462,26 @@
 
 
         void stackDump(const Stack* stk, const char* func_name, const char* stack_name) {
-            fprintf(logs, "Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
-            fprintf(logs, "---------------------------------------------------------------------------------\n");
-            fprintf(logs, "STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
+            fprintf(stackLibLogs, "Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
+            fprintf(stackLibLogs, "---------------------------------------------------------------------------------\n");
+            fprintf(stackLibLogs, "STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
                     "data [%p]\n", (stk->status == OK || stk->status == EMPTY_STACK) ? "OK" : "BROKEN", stk->size, stk->capacity, stk->data);
 
             if (stk->status){
                 printError(stk->status);
-                fprintf(logs, "\n");
+                fprintf(stackLibLogs, "\n");
             }
             else {
                 for (int i = 0; i < stk->size; i++){
-                    fprintf(logs, "*data[%d] = %d\n", i, stk->data[i]);
+                    fprintf(stackLibLogs, "*data[%d] = %d\n", i, stk->data[i]);
                 }
                 for (int i = stk->size; i < stk->capacity; i++){
-                    fprintf(logs, "*data[%d] = %X\n", i, stk->data[i]);
+                    fprintf(stackLibLogs, "*data[%d] = %X\n", i, stk->data[i]);
                 }
             }
 
-            fprintf(logs, "---------------------------------------------------------------------------------\n\n\n");
-            fflush(logs);
+            fprintf(stackLibLogs, "---------------------------------------------------------------------------------\n\n\n");
+            fflush(stackLibLogs);
         }   
 
     )
@@ -597,41 +597,41 @@
         void printError(int Error) 
         {
             if (Error & 1) 
-                fprintf(logs, "ERR_CALLING_FUNC_FAILED ");
+                fprintf(stackLibLogs, "ERR_CALLING_FUNC_FAILED ");
             if (Error & (1 << 1))
-                fprintf(logs, "ERR_STACK_ALREARY_CREATED ");
+                fprintf(stackLibLogs, "ERR_STACK_ALREARY_CREATED ");
             if (Error & (1 << 2))
-                fprintf(logs, "ERR_EMPTY_ELEM_ISNT_POISONED ");
+                fprintf(stackLibLogs, "ERR_EMPTY_ELEM_ISNT_POISONED ");
             if (Error & (1 << 3))
-                fprintf(logs, "ERR_SIZE_GREATER_CAPACITY ");
+                fprintf(stackLibLogs, "ERR_SIZE_GREATER_CAPACITY ");
             if (Error & (1 << 4))
-                fprintf(logs, "ERR_POP_EMPTY_STACK ");
+                fprintf(stackLibLogs, "ERR_POP_EMPTY_STACK ");
             if (Error & (1 << 5))
-                fprintf(logs, "ERR_RIGHT_CANARY_DAMAGED ");
+                fprintf(stackLibLogs, "ERR_RIGHT_CANARY_DAMAGED ");
             if (Error & (1 << 6))
-                fprintf(logs, "ERR_LEFT_CANARY_DAMAGED ");
+                fprintf(stackLibLogs, "ERR_LEFT_CANARY_DAMAGED ");
             if (Error & (1 << 7))
-                fprintf(logs, "ERR_WRONG_HASH ");
+                fprintf(stackLibLogs, "ERR_WRONG_HASH ");
             if (Error & (1 << 8))
-                fprintf(logs, "ERR_INVALID_PTR ");
+                fprintf(stackLibLogs, "ERR_INVALID_PTR ");
             if (Error & (1 << 9))
-                fprintf(logs, "ERR_REALLOC_FAILED ");
+                fprintf(stackLibLogs, "ERR_REALLOC_FAILED ");
             if (Error & (1 << 10))
-                fprintf(logs, "ERR_PUSH_FAILED ");
+                fprintf(stackLibLogs, "ERR_PUSH_FAILED ");
             if (Error & (1 << 11))
-                fprintf(logs, "ERR_STACK_ALREADY_CLEANED ");
+                fprintf(stackLibLogs, "ERR_STACK_ALREADY_CLEANED ");
             if (Error & (1 << 12))
-                fprintf(logs, "ERR_LEFT_DATACANARY_DAMAGED ");
+                fprintf(stackLibLogs, "ERR_LEFT_DATACANARY_DAMAGED ");
             if (Error & (1 << 13))
-                fprintf(logs, "ERR_RIGHT_DATACANARY_DAMAGED ");
+                fprintf(stackLibLogs, "ERR_RIGHT_DATACANARY_DAMAGED ");
             if (Error & (1 << 14))
-                fprintf(logs, "ERR_RESIZE_FAILED ");
+                fprintf(stackLibLogs, "ERR_RESIZE_FAILED ");
             if (Error & (1 << 15))
-                fprintf(logs, "ERR_POP_FAILED ");
+                fprintf(stackLibLogs, "ERR_POP_FAILED ");
             if (Error & (1 << 16))
-                fprintf(logs, "ERR_DUMP_FAILED ");
+                fprintf(stackLibLogs, "ERR_DUMP_FAILED ");
             if (Error & (1 << 17))
-                fprintf(logs, "ERR_STACK_BROKEN ");
+                fprintf(stackLibLogs, "ERR_STACK_BROKEN ");
         }
     )
 

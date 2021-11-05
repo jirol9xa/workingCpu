@@ -158,16 +158,18 @@ int getLabeles(Text *command, Label_array *marks)
 
     for (int i = 0; i < command->string_amount; i++)
     {
-        bool is_call = false;
+        bool is_call_or_ret = false;
+        PRINT_LINE();
         if (strncmp(command->text[i].string, ":CALL", strlen(":CALL")) == 0)
         {
             PRINT_LINE();
-            is_call = true;
+            printf("%s\n", command->text[i].string + 1);
+            is_call_or_ret = true;
             getMarks_ip += 1 + sizeof(int);
         }
         else if (strncmp(command->text[i].string, ":RET", strlen(":RET")) == 0)
         {
-            is_call = true;
+            is_call_or_ret = true;
             getMarks_ip ++;
             PRINT_LINE();
         }
@@ -186,34 +188,35 @@ int getLabeles(Text *command, Label_array *marks)
                 }                                                                                                           \
             }
             
-            #include "/home/voffk4/Cpu/commands.inc"
+            #include "../commands.inc"
             #undef DEF_CMD
         }
-        if (command->text[i].string[0] == ':' && !is_call)
+        if (command->text[i].string[0] == ':' && !is_call_or_ret)
         {
-            if (marks->marks_amount + 1 < marks->capacity)
+            if (marks->labeles_amount + 1 > marks->capacity)
             {
                 void *temp_ptr = nullptr;
                 temp_ptr = realloc(marks->label, sizeof(Label) * marks->capacity * 2);
                 marks->label = (Label *) temp_ptr;
                 marks->capacity *= 2;
+                printf("PTR -- %p\n", marks->label);
             }
 
-            int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->marks_amount].name);
+            int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->labeles_amount].name);
             if (sscanf_status)
             {
                 //getMarks_ip += sizeof(int) + 1;
-                marks->label[marks->marks_amount++].ip_number = getMarks_ip;
+                marks->label[marks->labeles_amount++].ip_number = getMarks_ip;
             }
             else
             {
-                printf("getMarks ERROR\n");
+                printf("%s ----- getMarks ERROR\n", command->text[i].string + 1);
                 return 1;
             }
         }
     }
 
-    for (int i = 0; i < marks->marks_amount; i++)
+    for (int i = 0; i < marks->labeles_amount; i++)
     {
         printf("label = %s\n", marks->label[i].name);
     }
@@ -224,7 +227,7 @@ int getLabeles(Text *command, Label_array *marks)
 
 int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *header, int CMD_TYPEJUMP)
 {   
-    for (int i = 0; i < marks->marks_amount; i++)
+    for (int i = 0; i < marks->labeles_amount; i++)
     {
         if (strcmp(marks->label[i].name, mark_name) == 0)
         {
@@ -236,19 +239,25 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
             return 0;
         }
     }
+
+    fprintf(logs, "!!! ERROR INVALID LABLE !!!\n");
 }
 
 
 int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_code)
 {
-    for (int i = 0; i < marks->marks_amount; i++)
+    printf("func-name = %s\n", func_name);
+    for (int i = 0; i < marks->labeles_amount; i++)
     {
         if (strcmp(marks->label[i].name, func_name) == 0)
         {
             *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
             header->code_length += sizeof(int);
             header->real_length ++;
+            printf("UGH number = %d\n", marks->label[i].ip_number);
             return 0;
         }
     }
+
+    fprintf(logs, "!!! ERROR INVALID LABLE !!!\n");
 }

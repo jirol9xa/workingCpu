@@ -198,7 +198,7 @@ DEF_CMD(16, JNE, 1,
         cpu->real_ip ++;
     }
 })
-/*DEF_CMD(17, CALL, 1,
+DEF_CMD(17, CALL, 1,
 {
     stackPush(&(cpu->ret), cpu->ip + sizeof(type_t));
     cpu->ip = *((int *) (code + cpu->ip));
@@ -206,7 +206,7 @@ DEF_CMD(16, JNE, 1,
 DEF_CMD(18, RET, 1,
 {
     stackPop(&(cpu->ret), &(cpu->ip));
-})*/
+})
 
 
 /*#define DEF_IFJMP(name, sign)                                 \

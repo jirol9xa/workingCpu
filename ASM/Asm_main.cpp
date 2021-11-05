@@ -41,10 +41,10 @@ int main(void)
 
     Label_array marks = {};
     marks.label = (Label *) calloc(1, sizeof(Label));
+    marks.capacity = 1;
     getLabeles(&commands, &marks);
     header.code_length += sizeof(Header);
     
-    bool is_hlt = 0;
     char *CMD = nullptr;
     PRINT_LINE();
     CMD = (char *) calloc(32, sizeof(char));
@@ -75,12 +75,18 @@ int main(void)
         {
             if (strncmp(CMD, ":CALL", strlen(":CALL")) == 0)
             {
-                char func_name[100] = {};
-                if (sscanf(CMD + strlen(":CALL "), "%s", func_name))
+                char func_name[32] = {};
+                int status = sscanf(commands.text[i].string + strlen(CMD), "%s", func_name);
+                if (status)
                 {
                     binary_code[header.code_length ++] = CMD_CALL;
                     header.real_length ++;
+                    PRINT_LINE();
                     writeCall(func_name, &marks, &header, binary_code);
+                }
+                else
+                {
+                    fprintf(logs, "!!! Write CALL ERROR !!!\n");
                 }
             }
             else if (strncmp(CMD, ":RET", strlen(":RET")) == 0)
@@ -88,9 +94,10 @@ int main(void)
                 binary_code[header.code_length ++] = CMD_RET;
                 header.real_length ++;
             }
-            
+
             continue;
         }
+        PRINT_LINE();
         #define DEF_CMD(num, name, num_arg, code)                                                           \
         if (strcmp(CMD, #name) == 0)                                                                        \
         {                                                                                                   \
@@ -106,7 +113,7 @@ int main(void)
                     header.real_length ++;                                                                  \
                 }                                                                                           \
                 else if (num == CMD_JMP || num == CMD_JA || num == CMD_JAE || num == CMD_JB ||              \
-                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE || num == CMD_CALL)              \
+                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE)                                 \
                 {                                                                                           \
                     char mark_name[32] = {};                                                                \
                     sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name);                         \
@@ -141,10 +148,10 @@ int main(void)
     header.code_length -= sizeof(Header);
     *((Header *) binary_code) = header;
     
-    /*for (int i = 0; i < code_size; i++)
+    for (int i = 0; i < header.code_length; i++)
     {
         printf("%d\n", binary_code[i]);
-    }*/
+    }
     
     /*is_debug_lvl_0(
         if (!is_hlt) 
@@ -166,6 +173,6 @@ int main(void)
         fclose(listing);
         fclose(logs);
     )
-
+    PRINT_LINE();
     return 0;
 }

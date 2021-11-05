@@ -3,14 +3,14 @@
 
     struct Label
     {
-        char name[10];
+        char name[32];
         int  ip_number;
     };
 
     struct Label_array
     {
         Label *label;
-        int  marks_amount;
+        int  labeles_amount;
         int capacity;
     };
 
