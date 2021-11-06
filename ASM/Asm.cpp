@@ -17,11 +17,14 @@
 
 
 
+static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int num);
+
+
+
 static int Atoi(char *number, int size = 0)
 {
     int num = 0;
     if (size == 0) size = strlen(number);
-    printf("size ----> %d\n", size);
 
     for (int i = 0; i < size && number[i] != '\0'; i++)
     {
@@ -110,46 +113,142 @@ int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
 {
     if (regsRAM[0] == '[')
     {
-        code[header->code_length++] = (num | is_ram);
-        header->real_length ++;
-        int adress = Atoi(regsRAM + 1, strlen(regsRAM) - 2);
-        *((int*) (code + header->code_length)) = adress;
-        //list(regsRAM, &adress, num | 64, 1);
-        header->code_length += sizeof(int);
-        header->real_length ++;
+        parsingForRAM(regsRAM + 1, header, code, num);
     }
     else{
         code[header->code_length++] = (num | is_reg);
         header->real_length ++;
-        switch(regsRAM[0])
-        {
-            case 'a':
-                *((int*) (code + header->code_length)) = 0;
-                header->code_length += sizeof(int);
-                header->real_length ++;
-                break;
-            case 'b':
-                *((int*) (code + header->code_length)) = 1;
-                header->code_length += sizeof(int);
-                header->real_length ++;
-                break;
-            case 'c':
-                *((int*) (code + header->code_length)) = 2;
-                header->code_length += sizeof(int);
-                header->real_length ++;
-                break;
-            case 'd':
-                *((int*) (code + header->code_length)) = 3;
-                header->code_length += sizeof(int);
-                header->real_length ++;
-                break;
-        }
-        //list(regsRAM, code - 1, num | 32, 1);
+        *((int *) (code + header->code_length)) = regsRAM[0] - 'a';
+        header->code_length += sizeof(int);
+        header->real_length ++;
     }
-    //каким-то образом записать в бинарник код регистра или оперативкиы
     
     return 0;
 }
+
+
+static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int cmd_num)
+{
+    char sign      = 0;
+    int  num       = 0;
+    int second_num = 0;
+    int status = sscanf(regsRAM, "%d %c %d", &num, &sign, &second_num) - (sign == 93);
+    
+    if (status == 0)
+    {
+        char reg[32] = {};
+        status = sscanf(regsRAM, "%s %c %d", reg, &sign, &num) - (sign == 93);
+        if (status == 3) //reg and num
+        {
+            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            header->real_length ++;
+            binaty_code[header->code_length ++] = 2 | is_reg;   //is_reg if first arg is register
+            header->real_length ++;
+
+            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
+            header->code_length += sizeof(int);
+            header->real_length ++;
+
+            binaty_code[header->code_length ++] = sign;
+            header->real_length ++;
+
+            *((int *) (binaty_code + header->code_length)) = num;
+            header->code_length += sizeof(int);
+            header->real_length ++;
+            //printf("reg = %s, sign = %c, num = %d\n", reg, sign, num);
+
+        }
+        else if (status == 2) //reg and reg
+        {
+            char second_reg[32] = {};
+            status = sscanf(regsRAM, "%s %c %s", reg, &sign, second_reg) - (sign == 93);
+
+
+            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            header->real_length ++;
+            binaty_code[header->code_length ++] = 2 | is_reg | is_ram;  //is_reg and is_ram if both args are registers
+            header->real_length ++;
+
+            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
+            header->code_length += sizeof(int);
+            header->real_length ++;
+
+            binaty_code[header->code_length ++] = sign;
+            header->real_length ++;
+
+            *((int *) (binaty_code + header->code_length)) = second_reg[0] - 'a';
+            header->code_length += sizeof(int);
+            header->real_length ++;
+            //printf("reg = %s, sign = %c, second_reg = %s\n", reg, sign, second_reg);
+        }
+        else if (status == 1)  //reg
+        {
+            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            header->real_length ++;
+            binaty_code[header->code_length ++] = 1 | is_reg;   //is_reg if first arg is register
+            header->real_length ++;
+            PRINT_LINE();
+
+            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
+            header->code_length += sizeof(int);
+            header->real_length ++;
+            //printf("reg = %s\n", reg);
+        }
+    }
+    else if (status == 1)   //num
+    {
+        binaty_code[header->code_length ++] = (cmd_num | is_ram);
+        header->real_length ++;
+        
+        *((int *) (binaty_code + header->code_length)) = num;
+        header->code_length += sizeof(int);
+        header->real_length ++;
+        //printf("num = %d\n", num);
+    }
+    else if (status == 2)  //num and reg
+    {
+        char reg[32] = {};
+        sscanf(regsRAM, "%d %c %s", &num, &sign, reg);
+
+        binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+        header->real_length ++;
+        binaty_code[header->code_length ++] = 2 | is_ram;   //is_ram if second is register
+        header->real_length ++;
+
+        *((int *) (binaty_code + header->code_length)) = num;
+        header->code_length += sizeof(int);
+        header->real_length ++;
+
+        binaty_code[header->code_length ++] = sign;
+        header->real_length ++;
+
+        *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
+        header->code_length += sizeof(int);
+        header->real_length ++;        
+        //printf("num = %d, sign = %c, reg = %s\n", num, sign, reg);
+    }
+    else  //num and num
+    {
+        binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+        header->real_length ++;
+        binaty_code[header->code_length ++] = 2;
+        header->real_length ++;
+
+        *((int *) (binaty_code + header->code_length)) = num;
+        header->code_length += sizeof(int);
+        header->real_length ++;
+
+        binaty_code[header->code_length ++] = sign;
+        header->real_length ++;
+
+        *((int *) (binaty_code + header->code_length)) = second_num;
+        header->code_length += sizeof(int);
+        header->real_length ++;        
+        
+        //printf("num = %d, sign = %c, second_num = %d\n", num, sign, second_num);
+    }
+}
+
 
 
 int getLabeles(Text *command, Label_array *marks)
@@ -159,11 +258,9 @@ int getLabeles(Text *command, Label_array *marks)
     for (int i = 0; i < command->string_amount; i++)
     {
         bool is_call_or_ret = false;
-        PRINT_LINE();
+
         if (strncmp(command->text[i].string, ":CALL", strlen(":CALL")) == 0)
         {
-            PRINT_LINE();
-            printf("%s\n", command->text[i].string + 1);
             is_call_or_ret = true;
             getMarks_ip += 1 + sizeof(int);
         }
@@ -171,7 +268,6 @@ int getLabeles(Text *command, Label_array *marks)
         {
             is_call_or_ret = true;
             getMarks_ip ++;
-            PRINT_LINE();
         }
         else
         {
@@ -199,13 +295,11 @@ int getLabeles(Text *command, Label_array *marks)
                 temp_ptr = realloc(marks->label, sizeof(Label) * marks->capacity * 2);
                 marks->label = (Label *) temp_ptr;
                 marks->capacity *= 2;
-                printf("PTR -- %p\n", marks->label);
             }
 
             int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->labeles_amount].name);
             if (sscanf_status)
             {
-                //getMarks_ip += sizeof(int) + 1;
                 marks->label[marks->labeles_amount++].ip_number = getMarks_ip;
             }
             else
@@ -216,11 +310,6 @@ int getLabeles(Text *command, Label_array *marks)
         }
     }
 
-    for (int i = 0; i < marks->labeles_amount; i++)
-    {
-        printf("label = %s\n", marks->label[i].name);
-    }
-    PRINT_LINE();
     return 0;
 }
 
@@ -246,7 +335,6 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
 
 int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_code)
 {
-    printf("func-name = %s\n", func_name);
     for (int i = 0; i < marks->labeles_amount; i++)
     {
         if (strcmp(marks->label[i].name, func_name) == 0)
@@ -254,7 +342,6 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
             *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
             header->code_length += sizeof(int);
             header->real_length ++;
-            printf("UGH number = %d\n", marks->label[i].ip_number);
             return 0;
         }
     }

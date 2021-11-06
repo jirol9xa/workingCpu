@@ -41,6 +41,7 @@
     static int to_strings(char *text_buffer, Line *text, int string_amount);
     static int fileLength(long *file_length, FILE *fp);
     static int output(Line *text, int string_amount, FILE *out);
+    static int skipSpace(char *string);
     static int finish_text(Text* Onegin);
 
 
@@ -183,5 +184,25 @@
 
         return 0;
     }
+
+
+    /*!
+    \brief  Функция пропуска пробелов в строке
+    \param  [char *]string Строка, в которой
+            необходимо пропустить пробелы
+    \return Количество пробелов в строке до
+            первого непробельного символа 
+    */
+    static int skipSpace(char *string)
+    {
+        int space_amount = 0;
+        for (int i = 0; i < strlen(string) && string[i] == ' '; i++)
+        {
+            space_amount ++;
+        }
+
+        return space_amount;
+    }
+
 
 #endif

@@ -88,7 +88,7 @@ int processing(Header *header, char *code, CPU *cpu)
     cpu->ip = 0;
     while (cpu->ip < header->code_length)
     {
-        switch (code[cpu->ip++] & (is_reg - 1))
+        switch (code[cpu->ip ++] & (is_reg - 1))
         {
 
             #define DEF_CMD(num, name, num_args, cmd_code)                                                       \

@@ -16,10 +16,18 @@
 #include "../ASM/Asm.h"
 
 
-int main(void)
+int main(int argc, char **argv)
 {   
-    PRINT_LINE();
-    FILE *sourse = fopen("/home/voffk4/Cpu/ASM/Sourse", "r");
+    FILE *sourse = nullptr;
+    if (argc < 2)
+    {
+        fprintf(logs, "!!! ERROR Can't run asm without sourse file !!!\n");
+        return 0;
+    }
+    else
+    {
+        sourse = fopen(argv[1], "r");
+    }
     FILE *binary = fopen("Binary", "wb");
 
     is_debug_lvl_0(
@@ -46,9 +54,7 @@ int main(void)
     header.code_length += sizeof(Header);
     
     char *CMD = nullptr;
-    PRINT_LINE();
     CMD = (char *) calloc(32, sizeof(char));
-    PRINT_LINE();
     for (int i = 0; i < commands.string_amount; i++)
     {   
         int arg = 0;
@@ -81,7 +87,6 @@ int main(void)
                 {
                     binary_code[header.code_length ++] = CMD_CALL;
                     header.real_length ++;
-                    PRINT_LINE();
                     writeCall(func_name, &marks, &header, binary_code);
                 }
                 else
@@ -97,7 +102,6 @@ int main(void)
 
             continue;
         }
-        PRINT_LINE();
         #define DEF_CMD(num, name, num_arg, code)                                                           \
         if (strcmp(CMD, #name) == 0)                                                                        \
         {                                                                                                   \
@@ -144,24 +148,17 @@ int main(void)
 
         #undef DEF_CMD
     }
-    
+
+    binary_code[header.code_length ++] = CMD_HLT;
+    header.real_length ++;
+
     header.code_length -= sizeof(Header);
     *((Header *) binary_code) = header;
     
-    for (int i = 0; i < header.code_length; i++)
+    /*for (int i = 0; i < header.code_length; i++)
     {
         printf("%d\n", binary_code[i]);
-    }
-    
-    /*is_debug_lvl_0(
-        if (!is_hlt) 
-        {   
-            PRINT_RESHETKA(logs);
-            fprintf(logs, "ASM was failed with error code: %d --- ", ERRASM_NO_HLT);
-            print_err_asm(ERRASM_NO_HLT);
-            PRINT_RESHETKA(logs);
-        }
-    )*/
+    }*/
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
 
@@ -173,6 +170,5 @@ int main(void)
         fclose(listing);
         fclose(logs);
     )
-    PRINT_LINE();
     return 0;
 }

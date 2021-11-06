@@ -11,7 +11,116 @@ DEF_CMD(1, HLT,  0, {
     return CMD_HLT;
 })
 DEF_CMD(2, PUSH, 1, {
-    if ((code[cpu->ip - 1] & is_reg) != 0)
+
+    if (((code[cpu->ip - 1] & is_reg) != 0) && ((code[cpu->ip - 1] & is_ram) != 0))
+    {
+        int num_arguments = code[cpu->ip ++];
+        int index = 0;
+        sleep(0.5);
+        if ((num_arguments & is_reg) != 0 && (num_arguments & is_ram) != 0)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '-':
+                    index -= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '*':
+                    index *= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '/':
+                    index /= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPush(&(cpu->stk), cpu->RAM[index]);
+        }
+        else if ((num_arguments & is_reg) != 0 && (num_arguments & (is_reg - 1)) == 2)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += *((int *) (code + cpu->ip));
+                    break;
+                case '-':
+                    index -= *((int *) (code + cpu->ip));
+                    break;
+                case '*':
+                    index *= *((int *) (code + cpu->ip));
+                    break;
+                case '/':
+                    index /= *((int *) (code + cpu->ip));
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPush(&(cpu->stk), cpu->RAM[index]);
+        }
+        else if (((num_arguments & is_ram) != 0) && ((num_arguments & (is_reg - 1)) == 2))
+        {
+            index += *((int *) (code + cpu->ip));
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '-':
+                    index -= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '*':
+                    index *= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '/':
+                    index /= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPush(&(cpu->stk), cpu->RAM[index]);
+        }
+        else if ((num_arguments & (is_reg - 1)) == 2)
+        {
+            index += *((int *) (code + cpu->ip));
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += *((int *) (code + cpu->ip));
+                    break;
+                case '-':
+                    index -= *((int *) (code + cpu->ip));
+                    break;
+                case '*':
+                    index *= *((int *) (code + cpu->ip));
+                    break;
+                case '/':
+                    index /= *((int *) (code + cpu->ip));
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPush(&(cpu->stk), cpu->RAM[index]);   
+        }
+        else if ((num_arguments & (is_reg - 1)) == 1 && (num_arguments & is_reg) != 0)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            stackPush(&(cpu->stk), cpu->RAM[index]);
+        }
+    }
+    else if ((code[cpu->ip - 1] & is_reg) != 0)
     {
         stackPush(&(cpu->stk), cpu->regs[*((int *) (code + cpu->ip))]);
         cpu->ip += sizeof(int);
@@ -67,16 +176,124 @@ DEF_CMD(7, DIV,  0, {
     stackPush(&(cpu->stk), second / first);
 })
 DEF_CMD(8, POP,  1,
-{
-    if ((code[cpu->ip - 1] & is_reg) != 0)
+{   
+    if ((code[cpu->ip - 1] & is_reg) != 0 && (code[cpu->ip - 1] & is_ram) != 0)
     {
         sleep(0.5);
+        int num_arguments = code[cpu->ip ++];
+        int index = 0;
+        if ((num_arguments & is_reg) != 0 && (num_arguments & is_ram) != 0)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '-':
+                    index -= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '*':
+                    index *= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '/':
+                    index /= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPop(&(cpu->stk), &(cpu->RAM[index]));
+        }
+        else if ((num_arguments & is_reg) != 0 && (num_arguments & (is_reg - 1)) == 2)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += *((int *) (code + cpu->ip));
+                    break;
+                case '-':
+                    index -= *((int *) (code + cpu->ip));
+                    break;
+                case '*':
+                    index *= *((int *) (code + cpu->ip));
+                    break;
+                case '/':
+                    index /= *((int *) (code + cpu->ip));
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPop(&(cpu->stk), &(cpu->RAM[index]));
+        }
+        else if (((num_arguments & is_ram) != 0) && (num_arguments & (is_reg - 1)) == 2)
+        {
+            index += *((int *) (code + cpu->ip));
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '-':
+                    index -= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '*':
+                    index *= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+                case '/':
+                    index /= cpu->regs[*((int *) (code + cpu->ip))];
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPop(&(cpu->stk), &(cpu->RAM[index]));
+        }
+        else if ((num_arguments & (is_reg - 1)) == 2)
+        {
+            index += *((int *) (code + cpu->ip));
+            cpu->ip += sizeof(int);
+            char sign = code[cpu->ip ++];
+
+            switch(sign)
+            {
+                case '+':
+                    index += *((int *) (code + cpu->ip));
+                    break;
+                case '-':
+                    index -= *((int *) (code + cpu->ip));
+                    break;
+                case '*':
+                    index *= *((int *) (code + cpu->ip));
+                    break;
+                case '/':
+                    index /= *((int *) (code + cpu->ip));
+                    break;
+            }
+            cpu->ip += sizeof(int);
+            stackPop(&(cpu->stk), &(cpu->RAM[index]));   
+        }
+        else if ((num_arguments & (is_reg - 1)) == 1 && (num_arguments & is_reg) != 0)
+        {
+            index += cpu->regs[*((int *) (code + cpu->ip))];
+            cpu->ip += sizeof(int);
+            stackPop(&(cpu->stk), &(cpu->RAM[index]));
+        }
+    }
+    else if ((code[cpu->ip - 1] & is_reg) != 0)
+    {
         stackPop(&(cpu->stk), &(cpu->regs[*((int *) (code + cpu->ip))]));
         cpu->ip += sizeof(int);
         is_debug_lvl_0(cpu->real_ip ++);
     }
     else if ((code[cpu->ip - 1] & is_ram) != 0)
     {
+        sleep(0.5);
         stackPop(&(cpu->stk), &(cpu->RAM[*((int *) (code + cpu->ip))]));
         cpu->ip += sizeof(int);
         is_debug_lvl_0(cpu->real_ip ++);
