@@ -41,7 +41,6 @@ int main(void)
             fclose(Code);
             is_debug_lvl_0(
                 closeLogs();
-                //closeCPULogs();
             );
             return 0;
         }

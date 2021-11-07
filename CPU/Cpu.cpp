@@ -78,7 +78,6 @@ int createCpu(CPU *cpu)
 int processing(Header *header, char *code, CPU *cpu)
 {
     is_debug_lvl_0(
-        openLogs();
         CHECK_PTR(header);
         CHECK_PTR(code);
         CHECK_PTR(cpu);
