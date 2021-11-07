@@ -2,19 +2,18 @@
    #define TEXTLIB_H
 
     #if DEBUG_LVL > 0
-        static FILE *textLibLogs = fopen("textLibLogs", "w");
 
         #define CHECK_FUNC(arg)                                                       \
         {                                                                              \
             if (arg){                                                                   \
-            fprintf(textLibLogs, "[%s:%d] --- %s failed\n", __func__, __LINE__, #arg);   \
+            LOGSPRINT("[%s:%d] --- %s failed\n", __func__, __LINE__, #arg);   \
             return 1;                                                                     \
             }                                                                              \
         }
 
         #define CHECK_PTR(arg) {                                                               \
             if (!(arg)) {                                                                       \
-                fprintf(textLibLogs, "[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);   \
+                LOGSPRINT("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);   \
                 return 1;                                                                         \
             }                                                                                      \
         }                                                                           

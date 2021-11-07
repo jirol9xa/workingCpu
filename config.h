@@ -46,6 +46,5 @@ struct Header
 }            
 
 #if DEBUG_LVL > 0
-    #define PRINT_RESHETKA(logs) fprintf(logs, "#################################################################\n");
     #define PRINT_LINE() printf("[%s:%d]\n", __func__, __LINE__);
 #endif

@@ -5,14 +5,11 @@
 #include <cmath>
 #include "../Arch.h"
 #include "../config.h"
+#include "../logsLib.h"
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "../ASM/Asm.h"
 #include "Cpu.h"
-
-is_debug_lvl_0(
-    #include "../logsLib.h"
-)
 
 
 int main(void)
@@ -40,7 +37,10 @@ int main(void)
             stackDtor(&cpu.stk);
             stackDtor(&cpu.ret);
             fclose(Code);
-            is_debug_lvl_0(fclose(logs));
+            is_debug_lvl_0(
+                LOGSCLOSE;
+                closeCPULogs();
+            );
             return 0;
         }
     }  
@@ -52,7 +52,7 @@ int main(void)
                             "##################################################\n");
         )
         fclose(Code);
-        is_debug_lvl_0(fclose(logs));
+        is_debug_lvl_0(LOGSCLOSE);
     }
 
     return 0;

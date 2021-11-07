@@ -8,10 +8,10 @@
 
 
 #if DEBUG_LVL > 0
-    FILE *logs = fopen("logs", "w");
     FILE *listing = fopen("Listing", "w"); 
 #endif
 
+#include "../logsLib.h"
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "../ASM/Asm.h"
@@ -22,7 +22,7 @@ int main(int argc, char **argv)
     FILE *sourse = nullptr;
     if (argc < 2)
     {
-        fprintf(logs, "!!! ERROR Can't run asm without sourse file !!!\n");
+        LOGSPRINT("!!! ERROR Can't run asm without sourse file !!!\n");
         return 0;
     }
     
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
         {
             is_debug_lvl_0(
                 PRINT_RESHETKA(logs);
-                fprintf(logs, "not valid format for command\n");
+                LOGSPRINT("not valid format for command\n");
                 PRINT_RESHETKA(logs);
             )
         }
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    fprintf(logs, "!!! Write CALL ERROR !!!\n");
+                    LOGSPRINT("!!! Write CALL ERROR !!!\n");
                 }
             }
             else if (strncmp(CMD, ":RET", strlen(":RET")) == 0)
@@ -156,12 +156,14 @@ int main(int argc, char **argv)
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
 
     free(binary_code);
+    free(marks.label);
     fclose(sourse);
     fclose(binary);
+    free(argv);
     finish_text(&commands);
     is_debug_lvl_0(
         fclose(listing);
-        fclose(logs);
+        LOGSCLOSE;
     )
     return 0;
 }

@@ -2,12 +2,12 @@
     #define LOGSLIB_H
 
 
-    FILE *logs = fopen("logs", "w");
+    static FILE *logs = fopen("logs", "a");
 
 
     #define PRINT_RESHETKA fprintf(logs, "#################################################################\n");
-    #define PRINT_LINE printf("[%s:%d]\n", __func__, __LINE__);
-    #define LOGSPRINT(code) fprintf(logs, code);
+    #define LOGSPRINT(...) fprintf(logs, __VA_ARGS__);
+    #define LOGSCLOSE fclose(logs);
 
     
 #endif

@@ -52,10 +52,8 @@
                 };
 
             #if (DEBUG_LVL > 0)
-                static FILE *stackLibLogs = fopen("stackLibLogs", "w");
-
                 #define STACK_CREATION_INFO(stack) {                                                                  \
-                    fprintf(stackLibLogs, "Stack \"%s\" was created in function \"%s\" on line %d."                           \
+                    LOGSPRINT("Stack \"%s\" was created in function \"%s\" on line %d."                           \
                     "Adress %p with addrreess of data: %p\n\n\n", #stack, __PRETTY_FUNCTION__, __LINE__,              \
                     stack, stack->data);                                                                              \
                 }
@@ -68,7 +66,7 @@
 
                 #define CHECK_PTR(arg) {                                                                              \
                     if (!(arg)) {                                                                                     \
-                        fprintf(logs, "[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);                       \
+                        LOGSPRINT("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);                       \
                         return ERR_INVALID_PTR;                                                                       \
                     }                                                                                                 \
                 }
@@ -80,12 +78,12 @@
                 #define FUNC_REPORT(func, stack) {                                                                    \
                     int status = (int) func;                                                                          \
                     if (status) {                                                                                     \
-                        fprintf(stackLibLogs, "########################################################################\n"    \
+                        LOGSPRINT("########################################################################\n"    \
                                     "function \"%s\" was failed with error code:\n", #func);                          \
                         printError(status);                                                                           \
-                        fprintf(stackLibLogs, "\nStack is:\n");                                                               \
+                        LOGSPRINT("\nStack is:\n");                                                               \
                         STACK_DUMP(stack)                                                                             \
-                        fprintf(stackLibLogs, "########################################################################\n\n");\
+                        LOGSPRINT("########################################################################\n\n");\
                     }                                                                                                 \
                 }
 
@@ -279,7 +277,7 @@
         if (stk->size + 1 > stk->capacity) {
             if (stackResize(stk, 1) == ERR_RESIZE_FAILED) {
                 is_debug_lvl_0(
-                fprintf(stackLibLogs, "Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
+                LOGSPRINT("Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
                 )
 
                 return ERR_PUSH_FAILED;
@@ -462,26 +460,26 @@
 
 
         void stackDump(const Stack* stk, const char* func_name, const char* stack_name) {
-            fprintf(stackLibLogs, "Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
-            fprintf(stackLibLogs, "---------------------------------------------------------------------------------\n");
-            fprintf(stackLibLogs, "STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
+            LOGSPRINT("Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
+            LOGSPRINT("---------------------------------------------------------------------------------\n");
+            LOGSPRINT("STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
                     "data [%p]\n", (stk->status == OK || stk->status == EMPTY_STACK) ? "OK" : "BROKEN", stk->size, stk->capacity, stk->data);
 
             if (stk->status){
                 printError(stk->status);
-                fprintf(stackLibLogs, "\n");
+                LOGSPRINT("\n");
             }
             else {
                 for (int i = 0; i < stk->size; i++){
-                    fprintf(stackLibLogs, "*data[%d] = %d\n", i, stk->data[i]);
+                    LOGSPRINT("*data[%d] = %d\n", i, stk->data[i]);
                 }
                 for (int i = stk->size; i < stk->capacity; i++){
-                    fprintf(stackLibLogs, "*data[%d] = %X\n", i, stk->data[i]);
+                    LOGSPRINT("*data[%d] = %X\n", i, stk->data[i]);
                 }
             }
 
-            fprintf(stackLibLogs, "---------------------------------------------------------------------------------\n\n\n");
-            fflush(stackLibLogs);
+            LOGSPRINT("---------------------------------------------------------------------------------\n\n\n");
+            fflush(logs);
         }   
 
     )
@@ -597,41 +595,41 @@
         void printError(int Error) 
         {
             if (Error & 1) 
-                fprintf(stackLibLogs, "ERR_CALLING_FUNC_FAILED ");
+                LOGSPRINT("ERR_CALLING_FUNC_FAILED ");
             if (Error & (1 << 1))
-                fprintf(stackLibLogs, "ERR_STACK_ALREARY_CREATED ");
+                LOGSPRINT("ERR_STACK_ALREARY_CREATED ");
             if (Error & (1 << 2))
-                fprintf(stackLibLogs, "ERR_EMPTY_ELEM_ISNT_POISONED ");
+                LOGSPRINT("ERR_EMPTY_ELEM_ISNT_POISONED ");
             if (Error & (1 << 3))
-                fprintf(stackLibLogs, "ERR_SIZE_GREATER_CAPACITY ");
+                LOGSPRINT("ERR_SIZE_GREATER_CAPACITY ");
             if (Error & (1 << 4))
-                fprintf(stackLibLogs, "ERR_POP_EMPTY_STACK ");
+                LOGSPRINT("ERR_POP_EMPTY_STACK ");
             if (Error & (1 << 5))
-                fprintf(stackLibLogs, "ERR_RIGHT_CANARY_DAMAGED ");
+                LOGSPRINT("ERR_RIGHT_CANARY_DAMAGED ");
             if (Error & (1 << 6))
-                fprintf(stackLibLogs, "ERR_LEFT_CANARY_DAMAGED ");
+                LOGSPRINT("ERR_LEFT_CANARY_DAMAGED ");
             if (Error & (1 << 7))
-                fprintf(stackLibLogs, "ERR_WRONG_HASH ");
+                LOGSPRINT("ERR_WRONG_HASH ");
             if (Error & (1 << 8))
-                fprintf(stackLibLogs, "ERR_INVALID_PTR ");
+                LOGSPRINT("ERR_INVALID_PTR ");
             if (Error & (1 << 9))
-                fprintf(stackLibLogs, "ERR_REALLOC_FAILED ");
+                LOGSPRINT("ERR_REALLOC_FAILED ");
             if (Error & (1 << 10))
-                fprintf(stackLibLogs, "ERR_PUSH_FAILED ");
+                LOGSPRINT("ERR_PUSH_FAILED ");
             if (Error & (1 << 11))
-                fprintf(stackLibLogs, "ERR_STACK_ALREADY_CLEANED ");
+                LOGSPRINT("ERR_STACK_ALREADY_CLEANED ");
             if (Error & (1 << 12))
-                fprintf(stackLibLogs, "ERR_LEFT_DATACANARY_DAMAGED ");
+                LOGSPRINT("ERR_LEFT_DATACANARY_DAMAGED ");
             if (Error & (1 << 13))
-                fprintf(stackLibLogs, "ERR_RIGHT_DATACANARY_DAMAGED ");
+                LOGSPRINT("ERR_RIGHT_DATACANARY_DAMAGED ");
             if (Error & (1 << 14))
-                fprintf(stackLibLogs, "ERR_RESIZE_FAILED ");
+                LOGSPRINT("ERR_RESIZE_FAILED ");
             if (Error & (1 << 15))
-                fprintf(stackLibLogs, "ERR_POP_FAILED ");
+                LOGSPRINT("ERR_POP_FAILED ");
             if (Error & (1 << 16))
-                fprintf(stackLibLogs, "ERR_DUMP_FAILED ");
+                LOGSPRINT("ERR_DUMP_FAILED ");
             if (Error & (1 << 17))
-                fprintf(stackLibLogs, "ERR_STACK_BROKEN ");
+                LOGSPRINT("ERR_STACK_BROKEN ");
         }
     )
 

@@ -5,14 +5,11 @@
 #include <cmath>
 #include "../Arch.h"
 #include "../config.h"
+#include "../logsLib.h"
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "../ASM/Asm.h"
 #include "Cpu.h"
-
-is_debug_lvl_0(
-    #include "../logsLib.h"
-)
 
 
 static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop);
@@ -23,24 +20,22 @@ is_debug_lvl_0(
         \brief  Функция дампа для проца
         \param  [CPU *]cpu Указатель на процессор
         \param  [char *]binary_code Массив с кодом
-        \param  [FILE *]logs Лог файл, куда будет
-                записываться дамп
     */
-    static void cpuDump(CPU *cpu, char *binary_code, FILE *logs, Header *header)
+    static void cpuDump(CPU *cpu, char *binary_code, Header *header)
     {
-        PRINT_RESHETKA(logs);
-        PRINT_RESHETKA(logs);
-        PRINT_RESHETKA(logs);
+        PRINT_RESHETKA;
+        PRINT_RESHETKA;
+        PRINT_RESHETKA;
         LOGSPRINT("        ");
         for (int i = 0; i < cpu->real_size; i++)
         {
-            LOGSPRINT({" %2d", i});
+            LOGSPRINT(" %2d", i);
         }
         LOGSPRINT("\n");
         LOGSPRINT("Commands");
         for (int i = 0; i < header->code_length; i++)
         {
-            fprintf(logs, " %2d", (int) binary_code[i]);                                                                                                                              
+            LOGSPRINT(" %2d", (int) binary_code[i]);                                                                                                                              
             if ((binary_code[i] && IS_REG) != 0 || (binary_code[i] && IS_RAM) != 0)       
             {                                   
                 i ++;                                                      
@@ -49,7 +44,7 @@ is_debug_lvl_0(
             }                                                                                                                                                                                      
         }
         LOGSPRINT("\n");
-        LOGSPRINT({"%*s----------- current command\n", cpu->real_ip * 3 + 8, "^"});
+        LOGSPRINT("%*s----------- current command\n", cpu->real_ip * 3 + 8, "^");
 
         LOGSPRINT("Regs\n" "ax --- %d\n" "bx --- %d\n" "cx --- %d\n" "dx --- %d\n", cpu->regs[0], 
                 cpu->regs[1], cpu->regs[2], cpu->regs[3]);
@@ -97,7 +92,7 @@ int processing(Header *header, char *code, CPU *cpu)
             #define DEF_CMD(num, name, num_args, cmd_code)                                                       \
             case CMD_##name:                                                                                     \
                 is_debug_lvl_0(cpu->real_ip ++);                                                                 \
-                is_debug_lvl_0(cpuDump(cpu, code, logs, header));                                                \
+                is_debug_lvl_0(cpuDump(cpu, code, header));                                                      \
                 cmd_code;                                                                                        \
             break;
 
@@ -219,4 +214,10 @@ static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
     }
 
     return -1;
+}
+
+
+void closeCPULogs()
+{
+    LOGSCLOSE;
 }

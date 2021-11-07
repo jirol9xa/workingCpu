@@ -7,11 +7,11 @@
 #include <ctype.h>
 
 #if DEBUG_LVL > 0
-    extern FILE *logs;
     extern FILE *listing;
 #endif
 
 
+#include "../logsLib.h"
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "Asm.h"
@@ -49,7 +49,7 @@ static int resizeLabelArr(Label_array *labels)
         return 0;
     }
 
-    fprintf(logs, "!!! ERROR Not enough memory for new label !!!\n");
+    LOGSPRINT("!!! ERROR Not enough memory for new label !!!\n");
     return -1;
 }
 
@@ -99,7 +99,7 @@ is_debug_lvl_0(
         switch (err)
         {
             case ERRASM_NO_HLT:
-                fprintf(logs, "ERRASM_NO_HLT\n");
+                LOGSPRINT("ERRASM_NO_HLT\n");
                 break;
         }
     }
@@ -350,7 +350,7 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
         }
     }
 
-    fprintf(logs, "!!! ERROR INVALID LABLE !!!\n");
+    LOGSPRINT("!!! ERROR INVALID LABLE !!!\n");
 }
 
 
@@ -367,5 +367,12 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
         }
     }
 
-    fprintf(logs, "!!! ERROR INVALID LABLE !!!\n");
+    LOGSPRINT("!!! ERROR INVALID LABLE !!!\n");
 }
+
+
+void closeASMLogs()
+{
+    LOGSCLOSE;
+}
+
