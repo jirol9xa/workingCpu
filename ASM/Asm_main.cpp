@@ -1,3 +1,4 @@
+#include "../Arch.h"
 #include "../config.h"
 #include <stdlib.h>
 #include <string.h>
@@ -24,10 +25,8 @@ int main(int argc, char **argv)
         fprintf(logs, "!!! ERROR Can't run asm without sourse file !!!\n");
         return 0;
     }
-    else
-    {
-        sourse = fopen(argv[1], "r");
-    }
+    
+    sourse = fopen(argv[1], "r");
     FILE *binary = fopen("Binary", "wb");
 
     is_debug_lvl_0(
@@ -53,12 +52,12 @@ int main(int argc, char **argv)
     getLabeles(&commands, &marks);
     header.code_length += sizeof(Header);
     
-    char *CMD = nullptr;
-    CMD = (char *) calloc(32, sizeof(char));
+    char CMD[32] = {};
+
     for (int i = 0; i < commands.string_amount; i++)
     {   
         int arg = 0;
-        char regsRAM[32] = {};
+        char str_buff[32] = {};
         int arg_amount = sscanf(commands.text[i].string, "%s %d", CMD, &arg) - 1;
 
         if (arg_amount < 0)
@@ -71,7 +70,7 @@ int main(int argc, char **argv)
         }
         else if (arg_amount == 0)
         {
-            if (getLine(regsRAM, commands.text[i].string + strlen(CMD)) > 0)
+            if (getLine(str_buff, commands.text[i].string + strlen(CMD)) > 0)
             {
                 arg_amount = -1;
             }
@@ -116,8 +115,7 @@ int main(int argc, char **argv)
                     header.code_length += sizeof(int);                                                      \
                     header.real_length ++;                                                                  \
                 }                                                                                           \
-                else if (num == CMD_JMP || num == CMD_JA || num == CMD_JAE || num == CMD_JB ||              \
-                         num == CMD_JBE || num == CMD_JE || num == CMD_JNE)                                 \
+                else if (num >= CMD_JMP && num <= CMD_JNE)                                                  \
                 {                                                                                           \
                     char mark_name[32] = {};                                                                \
                     sscanf(commands.text[i].string + strlen(CMD), "%s", mark_name);                         \
@@ -125,8 +123,8 @@ int main(int argc, char **argv)
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
-                    regsAndRAM(regsRAM, &(header), binary_code, num);                                       \
-                    is_debug_lvl_0(list(CMD, regsRAM,                                                       \
+                    parseOperand(str_buff, &(header), binary_code, num);                                       \
+                    is_debug_lvl_0(list(CMD, str_buff,                                                       \
                                    (int) *(binary_code + header.code_length - sizeof(int) - 1), 1));        \
                 }                                                                                           \
             }                                                                                               \
@@ -154,11 +152,6 @@ int main(int argc, char **argv)
 
     header.code_length -= sizeof(Header);
     *((Header *) binary_code) = header;
-    
-    /*for (int i = 0; i < header.code_length; i++)
-    {
-        printf("%d\n", binary_code[i]);
-    }*/
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
 

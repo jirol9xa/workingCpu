@@ -1,3 +1,4 @@
+#include "../Arch.h"
 #include "../config.h"
 #include <stdio.h>
 #include <cmath>
@@ -11,13 +12,15 @@
 #endif
 
 
-#include "/home/voffk4/Cpu/textLib.h"
-#include "/home/voffk4/Cpu/stackLib.h"
+#include "../textLib.h"
+#include "../stackLib.h"
 #include "Asm.h"
 
 
 
 static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int num);
+static int Atoi(char *number, int size);
+static int resizeLabelArr(Label_array *lables);
 
 
 
@@ -35,6 +38,22 @@ static int Atoi(char *number, int size = 0)
 }
 
 
+static int resizeLabelArr(Label_array *labels)
+{
+    void *temp_ptr = nullptr;
+    temp_ptr = realloc(labels->label, sizeof(Label) * labels->capacity * 2);
+    if (temp_ptr != nullptr)
+    {
+        labels->label = (Label *) temp_ptr;
+        labels->capacity *= 2;
+        return 0;
+    }
+
+    fprintf(logs, "!!! ERROR Not enough memory for new label !!!\n");
+    return -1;
+}
+
+
 is_debug_lvl_0(
     /*!
         \brief  Функция печати листинга
@@ -44,11 +63,11 @@ is_debug_lvl_0(
         \return 0, если все успешно, 1
                 в противном случае
     */
-    int list(char *CODE, void* arg, int code, int is_ram)
+    int list(char *CODE, void* arg, int code, int IS_RAM)
     {
         CHECK_PTR(CODE);
 
-        if (!is_ram)
+        if (!IS_RAM)
         {
         int *Arg = (int *) arg;
         fprintf(listing, "%4s %10d    ------------->  %4d %10d\n", CODE, *Arg, code, *Arg);
@@ -109,14 +128,14 @@ int getLine(char *dest, char *sourse)
 }
 
 
-int regsAndRAM(char *regsRAM, Header *header, char *code, int num)
+int parseOperand(char *regsRAM, Header *header, char *code, int num)
 {
     if (regsRAM[0] == '[')
     {
         parsingForRAM(regsRAM + 1, header, code, num);
     }
     else{
-        code[header->code_length++] = (num | is_reg);
+        code[header->code_length++] = (num | IS_REG);
         header->real_length ++;
         *((int *) (code + header->code_length)) = regsRAM[0] - 'a';
         header->code_length += sizeof(int);
@@ -140,9 +159,9 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
         status = sscanf(regsRAM, "%s %c %d", reg, &sign, &num) - (sign == 93);
         if (status == 3) //reg and num
         {
-            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 2 | is_reg;   //is_reg if first arg is register
+            binaty_code[header->code_length ++] = 2 | IS_REG;   //IS_REG if first arg is register
             header->real_length ++;
 
             *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
@@ -164,9 +183,9 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
             status = sscanf(regsRAM, "%s %c %s", reg, &sign, second_reg) - (sign == 93);
 
 
-            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 2 | is_reg | is_ram;  //is_reg and is_ram if both args are registers
+            binaty_code[header->code_length ++] = 2 | IS_REG | IS_RAM;  //IS_REG and IS_RAM if both args are registers
             header->real_length ++;
 
             *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
@@ -183,9 +202,9 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
         }
         else if (status == 1)  //reg
         {
-            binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 1 | is_reg;   //is_reg if first arg is register
+            binaty_code[header->code_length ++] = 1 | IS_REG;   //is_reg if first arg is register
             header->real_length ++;
             PRINT_LINE();
 
@@ -197,7 +216,7 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
     }
     else if (status == 1)   //num
     {
-        binaty_code[header->code_length ++] = (cmd_num | is_ram);
+        binaty_code[header->code_length ++] = (cmd_num | IS_RAM);
         header->real_length ++;
         
         *((int *) (binaty_code + header->code_length)) = num;
@@ -210,9 +229,9 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
         char reg[32] = {};
         sscanf(regsRAM, "%d %c %s", &num, &sign, reg);
 
-        binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+        binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
         header->real_length ++;
-        binaty_code[header->code_length ++] = 2 | is_ram;   //is_ram if second is register
+        binaty_code[header->code_length ++] = 2 | IS_RAM;   //is_ram if second is register
         header->real_length ++;
 
         *((int *) (binaty_code + header->code_length)) = num;
@@ -229,7 +248,7 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
     }
     else  //num and num
     {
-        binaty_code[header->code_length ++] = (cmd_num | is_reg | is_ram);
+        binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
         header->real_length ++;
         binaty_code[header->code_length ++] = 2;
         header->real_length ++;
@@ -291,10 +310,12 @@ int getLabeles(Text *command, Label_array *marks)
         {
             if (marks->labeles_amount + 1 > marks->capacity)
             {
-                void *temp_ptr = nullptr;
-                temp_ptr = realloc(marks->label, sizeof(Label) * marks->capacity * 2);
-                marks->label = (Label *) temp_ptr;
-                marks->capacity *= 2;
+                int status = resizeLabelArr(marks);
+                if (status)
+                {
+                    printf("%s ----- getMarks ERROR\n", command->text[i].string + 1);
+                    return 1;
+                }
             }
 
             int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->labeles_amount].name);

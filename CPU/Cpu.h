@@ -1,5 +1,5 @@
-#ifndef Cpu.H
-    #define Cpu.H
+#ifndef CPU_H
+    #define CPU_H
 
 
     struct CPU {
@@ -7,7 +7,7 @@
         Stack stk;
         int ip;
         int RAM[1000];
-        int code_size;
+        //int code_size;
         Stack ret;
         is_debug_lvl_0(
         int real_size;

@@ -1,5 +1,5 @@
-#ifndef STACK_LIB_H
-        #define STACK_LIB_H
+#ifndef STACKLIB_H
+        #define STACKLIB_H
 
         const type_t POISON = 0xDEAD; 
 

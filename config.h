@@ -18,10 +18,6 @@ THE FILE IS GENERATED AUTOMATICALLY!!!!!!!!!
 
 #define DEBUG_LVL 3
 
-typedef int type_t;
-
-const int is_reg = 1 << 5;  //при использовании регистра
-const int is_ram = 1 << 6;  //при использовании оперативки
 
 enum COMMANDS
 {

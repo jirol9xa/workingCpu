@@ -28,7 +28,7 @@
 
     int getLine(char *dest, char *sourse);
 
-    int regsAndRAM(char *regsRAM, Header *header, char *code, int num);
+    int parseOperand(char *regsRAM, Header *header, char *code, int num);
 
     int getLabeles(Text *command, Label_array *lables);
     int writeLabel(char *binary_code, Label_array *lables, char *label_name, Header *header, int CMD_TYPEJUMP);

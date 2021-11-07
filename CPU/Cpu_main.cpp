@@ -3,16 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cmath>
+#include "../Arch.h"
 #include "../config.h"
-
-#if DEBUG_LVL > 0
-    FILE *logs = fopen("logs", "w");
-#endif
-
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "../ASM/Asm.h"
 #include "Cpu.h"
+
+is_debug_lvl_0(
+    #include "../logsLib.h"
+)
 
 
 int main(void)
@@ -31,7 +31,7 @@ int main(void)
 
         CPU cpu = {};
         createCpu(&cpu);
-        cpu.code_size = header.code_length;
+        //cpu.code_size = header.code_length;
         cpu.real_size = header.real_length;
 
         if (processing(&header, binary_code, &cpu) == CMD_HLT)
@@ -47,7 +47,7 @@ int main(void)
     else
     {
         is_debug_lvl_0(
-            fprintf(logs, "\n\n##################################################" 
+            LOGSPRINT("\n\n##################################################" 
                             "\n\nERR_WRONG_SIGNATURE\n\n"
                             "##################################################\n");
         )
