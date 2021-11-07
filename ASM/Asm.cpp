@@ -49,7 +49,7 @@ static int resizeLabelArr(Label_array *labels)
         return 0;
     }
 
-    LOGSPRINT("!!! ERROR Not enough memory for new label !!!\n");
+    writeLogs("!!! ERROR Not enough memory for new label !!!\n");
     return -1;
 }
 
@@ -99,7 +99,7 @@ is_debug_lvl_0(
         switch (err)
         {
             case ERRASM_NO_HLT:
-                LOGSPRINT("ERRASM_NO_HLT\n");
+                writeLogs("ERRASM_NO_HLT\n");
                 break;
         }
     }
@@ -350,7 +350,7 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
         }
     }
 
-    LOGSPRINT("!!! ERROR INVALID LABLE !!!\n");
+    writeLogs("!!! ERROR INVALID LABLE !!!\n");
 }
 
 
@@ -367,12 +367,5 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
         }
     }
 
-    LOGSPRINT("!!! ERROR INVALID LABLE !!!\n");
+    writeLogs("!!! ERROR INVALID LABLE !!!\n");
 }
-
-
-void closeASMLogs()
-{
-    LOGSCLOSE;
-}
-

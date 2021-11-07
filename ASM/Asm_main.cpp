@@ -1,3 +1,4 @@
+#include "../logsLib.h"
 #include "../Arch.h"
 #include "../config.h"
 #include <stdlib.h>
@@ -11,7 +12,6 @@
     FILE *listing = fopen("Listing", "w"); 
 #endif
 
-#include "../logsLib.h"
 #include "../textLib.h"
 #include "../stackLib.h"
 #include "../ASM/Asm.h"
@@ -19,10 +19,17 @@
 
 int main(int argc, char **argv)
 {   
+    is_debug_lvl_0(
+        if (openLogs())
+        {
+            printf("!!!ASM finished !!!\n");
+            return 0;
+        }
+        );
     FILE *sourse = nullptr;
     if (argc < 2)
     {
-        LOGSPRINT("!!! ERROR Can't run asm without sourse file !!!\n");
+        is_debug_lvl_0(writeLogs("!!! ERROR Can't run asm without sourse file !!!\n"));
         return 0;
     }
     
@@ -63,9 +70,9 @@ int main(int argc, char **argv)
         if (arg_amount < 0)
         {
             is_debug_lvl_0(
-                PRINT_RESHETKA(logs);
-                LOGSPRINT("not valid format for command\n");
-                PRINT_RESHETKA(logs);
+                printReshetka();
+                writeLogs("not valid format for command\n");
+                printReshetka();
             )
         }
         else if (arg_amount == 0)
@@ -90,7 +97,7 @@ int main(int argc, char **argv)
                 }
                 else
                 {
-                    LOGSPRINT("!!! Write CALL ERROR !!!\n");
+                    writeLogs("!!! Write CALL ERROR !!!\n");
                 }
             }
             else if (strncmp(CMD, ":RET", strlen(":RET")) == 0)
@@ -154,16 +161,15 @@ int main(int argc, char **argv)
     *((Header *) binary_code) = header;
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
-
     free(binary_code);
     free(marks.label);
     fclose(sourse);
     fclose(binary);
-    free(argv);
+    //free(argv);
     finish_text(&commands);
     is_debug_lvl_0(
         fclose(listing);
-        LOGSCLOSE;
+        closeLogs();
     )
     return 0;
 }

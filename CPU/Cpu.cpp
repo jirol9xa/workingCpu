@@ -23,36 +23,36 @@ is_debug_lvl_0(
     */
     static void cpuDump(CPU *cpu, char *binary_code, Header *header)
     {
-        PRINT_RESHETKA;
-        PRINT_RESHETKA;
-        PRINT_RESHETKA;
-        LOGSPRINT("        ");
+        printReshetka();
+        printReshetka();
+        printReshetka();
+        writeLogs("        ");
         for (int i = 0; i < cpu->real_size; i++)
         {
-            LOGSPRINT(" %2d", i);
+            writeLogs(" %2d", i);
         }
-        LOGSPRINT("\n");
-        LOGSPRINT("Commands");
+        writeLogs("\n");
+        writeLogs("Commands");
         for (int i = 0; i < header->code_length; i++)
         {
-            LOGSPRINT(" %2d", (int) binary_code[i]);                                                                                                                              
+            writeLogs(" %2d", (int) binary_code[i]);                                                                                                                              
             if ((binary_code[i] && IS_REG) != 0 || (binary_code[i] && IS_RAM) != 0)       
             {                                   
                 i ++;                                                      
-                LOGSPRINT(" %2d", *((int *) (binary_code + i)));                            
+                writeLogs(" %2d", *((int *) (binary_code + i)));                            
                 i += sizeof(int) - 1;                                                               
             }                                                                                                                                                                                      
         }
-        LOGSPRINT("\n");
-        LOGSPRINT("%*s----------- current command\n", cpu->real_ip * 3 + 8, "^");
+        writeLogs("\n");
+        writeLogs("%*s----------- current command\n", cpu->real_ip * 3 + 8, "^");
 
-        LOGSPRINT("Regs\n" "ax --- %d\n" "bx --- %d\n" "cx --- %d\n" "dx --- %d\n", cpu->regs[0], 
+        writeLogs("Regs\n" "ax --- %d\n" "bx --- %d\n" "cx --- %d\n" "dx --- %d\n", cpu->regs[0], 
                 cpu->regs[1], cpu->regs[2], cpu->regs[3]);
         
-        PRINT_RESHETKA;
-        PRINT_RESHETKA;
-        PRINT_RESHETKA;
-        LOGSPRINT("\n\n\n");
+        printReshetka();
+        printReshetka();
+        printReshetka();
+        writeLogs("\n\n\n");
     }
 )
 
@@ -78,6 +78,7 @@ int createCpu(CPU *cpu)
 int processing(Header *header, char *code, CPU *cpu)
 {
     is_debug_lvl_0(
+        openLogs();
         CHECK_PTR(header);
         CHECK_PTR(code);
         CHECK_PTR(cpu);
@@ -216,8 +217,9 @@ static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
     return -1;
 }
 
-
+/*
 void closeCPULogs()
 {
-    LOGSCLOSE;
+    closeLogs();
 }
+*/

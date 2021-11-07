@@ -6,14 +6,14 @@
         #define CHECK_FUNC(arg)                                                       \
         {                                                                              \
             if (arg){                                                                   \
-            LOGSPRINT("[%s:%d] --- %s failed\n", __func__, __LINE__, #arg);   \
+            writeLogs("[%s:%d] --- %s failed\n", __func__, __LINE__, #arg);   \
             return 1;                                                                     \
             }                                                                              \
         }
 
         #define CHECK_PTR(arg) {                                                               \
             if (!(arg)) {                                                                       \
-                LOGSPRINT("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);   \
+                writeLogs("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);   \
                 return 1;                                                                         \
             }                                                                                      \
         }                                                                           

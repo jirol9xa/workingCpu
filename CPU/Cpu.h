@@ -18,8 +18,6 @@
 
     int processing(Header *header, char *code, CPU *cpu);
     int createCpu(CPU *cpu);
-    
-    void closeCPULogs();
 
 #endif
 

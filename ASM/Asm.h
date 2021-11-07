@@ -34,6 +34,4 @@
     int writeLabel(char *binary_code, Label_array *lables, char *label_name, Header *header, int CMD_TYPEJUMP);
     int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_code);
 
-    void closeASMLogs();
-
 #endif

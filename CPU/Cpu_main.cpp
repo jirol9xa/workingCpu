@@ -15,12 +15,14 @@
 int main(void)
 {
     FILE *Code = fopen("/home/voffk4/Cpu/ASM/Binary", "r");
-    is_debug_lvl_0(CHECK_PTR(Code));
+    is_debug_lvl_0(
+        CHECK_PTR(Code);
+        openLogs();
+    );
 
     Header header = {};
 
     fread(&header, 1, sizeof(Header), Code);
-    
     if (header.sign = 'MH')
     {
         char *binary_code = (char *) calloc(header.code_length + 1, sizeof(char));
@@ -38,8 +40,8 @@ int main(void)
             stackDtor(&cpu.ret);
             fclose(Code);
             is_debug_lvl_0(
-                LOGSCLOSE;
-                closeCPULogs();
+                closeLogs();
+                //closeCPULogs();
             );
             return 0;
         }
@@ -47,12 +49,13 @@ int main(void)
     else
     {
         is_debug_lvl_0(
-            LOGSPRINT("\n\n##################################################" 
-                            "\n\nERR_WRONG_SIGNATURE\n\n"
-                            "##################################################\n");
+            writeLogs("\n\n");
+            printReshetka(); 
+            writeLogs("\n\nERR_WRONG_SIGNATURE\n\n");
+            printReshetka();
         )
         fclose(Code);
-        is_debug_lvl_0(LOGSCLOSE);
+        is_debug_lvl_0(closeLogs());
     }
 
     return 0;
