@@ -8,7 +8,7 @@ static FILE *logs = nullptr;
 
 int openLogs()
 {
-    logs = fopen("/home/voffk4/Cpu/LOGS/logs", "a");
+    logs = fopen("../LOGS/logs", "a");
 
     if (logs == nullptr)
     {

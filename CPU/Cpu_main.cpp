@@ -14,7 +14,7 @@
 
 int main(void)
 {
-    FILE *Code = fopen("/home/voffk4/Cpu/ASM/Binary", "r");
+    FILE *Code = fopen("../ASM/Binary", "r");
     is_debug_lvl_0(
         CHECK_PTR(Code);
         openLogs();

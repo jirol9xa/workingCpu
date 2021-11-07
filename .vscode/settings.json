@@ -4,6 +4,7 @@
         "type_traits": "cpp",
         "limits": "cpp",
         "typeinfo": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "cstring": "cpp"
     }
 }

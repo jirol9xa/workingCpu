@@ -145,7 +145,7 @@ int main(int argc, char **argv)
         }                                                                                                   \
         else   
 
-        #include "/home/voffk4/Cpu/commands.inc"
+        #include "../commands.inc"
 
         /*else*/
         {
