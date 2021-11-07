@@ -25,7 +25,8 @@ int main(int argc, char **argv)
             printf("!!!ASM finished !!!\n");
             return 0;
         }
-        );
+    );
+
     FILE *sourse = nullptr;
     if (argc < 2)
     {
@@ -161,11 +162,11 @@ int main(int argc, char **argv)
     *((Header *) binary_code) = header;
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
+
     free(binary_code);
     free(marks.label);
     fclose(sourse);
     fclose(binary);
-    //free(argv);
     finish_text(&commands);
     is_debug_lvl_0(
         fclose(listing);

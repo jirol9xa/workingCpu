@@ -319,9 +319,7 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
         {
             binary_code[header->code_length ++] = CMD_TYPEJUMP;
             header->real_length ++;
-            *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
-            header->code_length += sizeof(int);
-            header->real_length ++;
+            writeInt(binary_code, header, marks->label[i].ip_number);
             return 0;
         }
     }
@@ -336,9 +334,7 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
     {
         if (strcmp(marks->label[i].name, func_name) == 0)
         {
-            *((int *) (binary_code + header->code_length)) = marks->label[i].ip_number;
-            header->code_length += sizeof(int);
-            header->real_length ++;
+            writeInt(binary_code, header, marks->label[i].ip_number);
             return 0;
         }
     }

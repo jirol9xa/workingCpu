@@ -25,10 +25,10 @@
 
 ### Example
 #### ASM code:              
->PUSH 5
-PUSH 4
-MUL
-OUT
-HLT
+>PUSH 5\
+PUSH 4\
+MUL\
+OUT\
+HLT\
 #### Output
 >20
