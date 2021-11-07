@@ -18,9 +18,10 @@
 
 
 
-static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int num);
+static int parsingForRAM(char *regsRAM, Header *header, char *binary_code, int num);
 static int Atoi(char *number, int size);
 static int resizeLabelArr(Label_array *lables);
+static void writeInt(char *binary_code, Header *header, int value);
 
 
 
@@ -146,7 +147,7 @@ int parseOperand(char *regsRAM, Header *header, char *code, int num)
 }
 
 
-static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int cmd_num)
+static int parsingForRAM(char *regsRAM, Header *header, char *binary_code, int cmd_num)
 {
     char sign      = 0;
     int  num       = 0;
@@ -159,23 +160,17 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
         status = sscanf(regsRAM, "%s %c %d", reg, &sign, &num) - (sign == 93);
         if (status == 3) //reg and num
         {
-            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
+            binary_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 2 | IS_REG;   //IS_REG if first arg is register
-            header->real_length ++;
-
-            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
-            header->code_length += sizeof(int);
+            binary_code[header->code_length ++] = 2 | IS_REG;   //IS_REG if first arg is register
             header->real_length ++;
 
-            binaty_code[header->code_length ++] = sign;
+            writeInt(binary_code, header, reg[0] - 'a');
+
+            binary_code[header->code_length ++] = sign;
             header->real_length ++;
 
-            *((int *) (binaty_code + header->code_length)) = num;
-            header->code_length += sizeof(int);
-            header->real_length ++;
-            //printf("reg = %s, sign = %c, num = %d\n", reg, sign, num);
-
+            writeInt(binary_code, header, num);
         }
         else if (status == 2) //reg and reg
         {
@@ -183,88 +178,69 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binaty_code, int c
             status = sscanf(regsRAM, "%s %c %s", reg, &sign, second_reg) - (sign == 93);
 
 
-            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
+            binary_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 2 | IS_REG | IS_RAM;  //IS_REG and IS_RAM if both args are registers
-            header->real_length ++;
-
-            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
-            header->code_length += sizeof(int);
+            binary_code[header->code_length ++] = 2 | IS_REG | IS_RAM;  //IS_REG and IS_RAM if both args are registers
             header->real_length ++;
 
-            binaty_code[header->code_length ++] = sign;
+            writeInt(binary_code, header, reg[0] - 'a');
+
+            binary_code[header->code_length ++] = sign;
             header->real_length ++;
 
-            *((int *) (binaty_code + header->code_length)) = second_reg[0] - 'a';
-            header->code_length += sizeof(int);
-            header->real_length ++;
-            //printf("reg = %s, sign = %c, second_reg = %s\n", reg, sign, second_reg);
+            writeInt(binary_code, header, second_reg[0] - 'a');
         }
         else if (status == 1)  //reg
         {
-            binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
+            binary_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
             header->real_length ++;
-            binaty_code[header->code_length ++] = 1 | IS_REG;   //is_reg if first arg is register
+            binary_code[header->code_length ++] = 1 | IS_REG;   //is_reg if first arg is register
             header->real_length ++;
-            PRINT_LINE();
 
-            *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
-            header->code_length += sizeof(int);
-            header->real_length ++;
-            //printf("reg = %s\n", reg);
+            writeInt(binary_code, header, reg[0] - 'a');
         }
     }
     else if (status == 1)   //num
     {
-        binaty_code[header->code_length ++] = (cmd_num | IS_RAM);
+        binary_code[header->code_length ++] = (cmd_num | IS_RAM);
         header->real_length ++;
         
-        *((int *) (binaty_code + header->code_length)) = num;
-        header->code_length += sizeof(int);
-        header->real_length ++;
-        //printf("num = %d\n", num);
+        writeInt(binary_code, header, num);
+
     }
     else if (status == 2)  //num and reg
     {
         char reg[32] = {};
         sscanf(regsRAM, "%d %c %s", &num, &sign, reg);
 
-        binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
+        binary_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
         header->real_length ++;
-        binaty_code[header->code_length ++] = 2 | IS_RAM;   //is_ram if second is register
-        header->real_length ++;
-
-        *((int *) (binaty_code + header->code_length)) = num;
-        header->code_length += sizeof(int);
+        binary_code[header->code_length ++] = 2 | IS_RAM;   //is_ram if second is register
         header->real_length ++;
 
-        binaty_code[header->code_length ++] = sign;
+        writeInt(binary_code, header, num);
+
+        binary_code[header->code_length ++] = sign;
         header->real_length ++;
 
-        *((int *) (binaty_code + header->code_length)) = reg[0] - 'a';
-        header->code_length += sizeof(int);
-        header->real_length ++;        
-        //printf("num = %d, sign = %c, reg = %s\n", num, sign, reg);
+        writeInt(binary_code, header, reg[0] - 'a');
+    
     }
     else  //num and num
     {
-        binaty_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
+        binary_code[header->code_length ++] = (cmd_num | IS_REG | IS_RAM);
         header->real_length ++;
-        binaty_code[header->code_length ++] = 2;
-        header->real_length ++;
-
-        *((int *) (binaty_code + header->code_length)) = num;
-        header->code_length += sizeof(int);
+        binary_code[header->code_length ++] = 2;
         header->real_length ++;
 
-        binaty_code[header->code_length ++] = sign;
+        writeInt(binary_code, header, num);
+
+
+        binary_code[header->code_length ++] = sign;
         header->real_length ++;
 
-        *((int *) (binaty_code + header->code_length)) = second_num;
-        header->code_length += sizeof(int);
-        header->real_length ++;        
-        
-        //printf("num = %d, sign = %c, second_num = %d\n", num, sign, second_num);
+        writeInt(binary_code, header, second_num);
+
     }
 }
 
@@ -368,4 +344,12 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
     }
 
     writeLogs("!!! ERROR INVALID LABLE !!!\n");
+}
+
+
+static void writeInt(char *binary_code, Header *header, int value)
+{
+    *((int *) (binary_code + header->code_length)) = value;
+    header->code_length += sizeof(int);
+    header->real_length ++;
 }
