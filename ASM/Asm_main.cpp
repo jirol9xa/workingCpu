@@ -45,7 +45,6 @@ int main(int argc, char **argv)
     Text commands = {};
 
     constructText(sourse, &commands);
-    printf("string amount = %d\n", commands.string_amount);
     char *binary_code = (char *) calloc((commands.string_amount + 1) * 2, sizeof(type_t));
     is_debug_lvl_0(CHECK_PTR(binary_code));
     
@@ -57,9 +56,7 @@ int main(int argc, char **argv)
     Label_array marks = {};
     marks.label = (Label *) calloc(1, sizeof(Label));
     marks.capacity = 1;
-    printf("cap = %d, valule = %d\n", marks.capacity, marks.label[0]);
     getLabeles(&commands, &marks);
-    printf("cap = %d, valule = %d\n", marks.capacity, marks.label[0]);
     header.code_length += sizeof(Header);
     
     char CMD[32] = {};

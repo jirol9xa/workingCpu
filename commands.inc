@@ -5,6 +5,7 @@ DEF_CMD(0, IN,   0, {
     {
         printf("Enter correct value (((((\n");
     }
+    value *= 1000;
     stackPush(&(cpu->stk), value);
 })
 DEF_CMD(1, HLT,  0, {
@@ -32,6 +33,7 @@ DEF_CMD(2, PUSH, 1, {
     else
     {
     int value = *((int*) (code + cpu->ip));
+    value *= 1000;
     stackPush(&(cpu->stk), value);
     cpu->ip += sizeof(int);
     is_debug_lvl_0(cpu->real_ip ++);
@@ -40,7 +42,8 @@ DEF_CMD(2, PUSH, 1, {
 DEF_CMD(3, OUT,  0, {
     int value = 0;
     stackPop(&(cpu->stk), &value);
-    printf("%d\n", value);
+    double value1 = value;
+    printf("%lg\n", value1 / 1000);
     stackPush(&(cpu->stk), value);
 })
 DEF_CMD(4, ADD,  0, {
@@ -62,14 +65,14 @@ DEF_CMD(6, MUL,  0, {
     int second = 0;
     stackPop(&(cpu->stk), &first);
     stackPop(&(cpu->stk), &second);
-    stackPush(&(cpu->stk), first * second);
+    stackPush(&(cpu->stk), first * second / 1000);
 })
 DEF_CMD(7, DIV,  0, {
     int first = 0;
     int second = 0;
     stackPop(&(cpu->stk), &first);
     stackPop(&(cpu->stk), &second);
-    stackPush(&(cpu->stk), second / first);
+    stackPush(&(cpu->stk), second * 1000 / first);
 })
 DEF_CMD(8, POP,  1,
 {   
@@ -215,6 +218,13 @@ DEF_CMD(17, CALL, 1,
 DEF_CMD(18, RET, 1,
 {
     stackPop(&(cpu->ret), &(cpu->ip));
+})
+DEF_CMD(19, SQRT, 0, 
+{
+    int value = 0;
+    stackPop(&(cpu->stk), &value);
+    value = (int) sqrt(value * 1000);
+    stackPush(&(cpu->stk), value);
 })
 
 
