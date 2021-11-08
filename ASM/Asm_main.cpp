@@ -45,8 +45,8 @@ int main(int argc, char **argv)
     Text commands = {};
 
     constructText(sourse, &commands);
-
-    char *binary_code = (char *) calloc(commands.string_amount * 2, sizeof(type_t));
+    printf("string amount = %d\n", commands.string_amount);
+    char *binary_code = (char *) calloc((commands.string_amount + 1) * 2, sizeof(type_t));
     is_debug_lvl_0(CHECK_PTR(binary_code));
     
     Header header = {};
@@ -57,7 +57,9 @@ int main(int argc, char **argv)
     Label_array marks = {};
     marks.label = (Label *) calloc(1, sizeof(Label));
     marks.capacity = 1;
+    printf("cap = %d, valule = %d\n", marks.capacity, marks.label[0]);
     getLabeles(&commands, &marks);
+    printf("cap = %d, valule = %d\n", marks.capacity, marks.label[0]);
     header.code_length += sizeof(Header);
     
     char CMD[32] = {};
@@ -131,14 +133,14 @@ int main(int argc, char **argv)
                 }                                                                                           \
                 else if (arg_amount == -1)                                                                  \
                 {                                                                                           \
-                    parseOperand(str_buff, &(header), binary_code, num);                                       \
-                    is_debug_lvl_0(list(CMD, str_buff,                                                       \
+                    parseOperand(str_buff, &(header), binary_code, num);                                    \
+                    is_debug_lvl_0(list(CMD, str_buff,                                                      \
                                    (int) *(binary_code + header.code_length - sizeof(int) - 1), 1));        \
                 }                                                                                           \
             }                                                                                               \
             else                                                                                            \
             {                                                                                               \
-                binary_code[header.code_length++] = CMD_##name;                                             \
+                binary_code[header.code_length ++] = CMD_##name;                                            \
                 header.real_length ++;                                                                      \
                 is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                    \
             }                                                                                               \
@@ -163,8 +165,8 @@ int main(int argc, char **argv)
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
 
-    free(binary_code);
     free(marks.label);
+    free(binary_code);
     fclose(sourse);
     fclose(binary);
     finish_text(&commands);

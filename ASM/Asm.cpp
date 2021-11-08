@@ -138,9 +138,7 @@ int parseOperand(char *regsRAM, Header *header, char *code, int num)
     else{
         code[header->code_length++] = (num | IS_REG);
         header->real_length ++;
-        *((int *) (code + header->code_length)) = regsRAM[0] - 'a';
-        header->code_length += sizeof(int);
-        header->real_length ++;
+        writeInt(code, header, regsRAM[0] - 'a');
     }
     
     return 0;
