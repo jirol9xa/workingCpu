@@ -106,7 +106,8 @@ int processing(Header *header, char *code, CPU *cpu)
 
 static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
 {
-    sleep(0.5);
+    sleep(0.5);     // to delay memory access
+
     int num_arguments = code[cpu->ip ++];
     int index = 0;
     if ((num_arguments & IS_REG) != 0 && (num_arguments & IS_RAM) != 0)
@@ -135,7 +136,7 @@ static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
     }
     else if ((num_arguments & IS_REG) != 0 && (num_arguments & (IS_REG - 1)) == 2)
     {
-        index += cpu->regs[*((int *) (code + cpu->ip))];
+        index += cpu->regs[*((int *) (code + cpu->ip))] / 1000;
         cpu->ip += sizeof(int);
         char sign = code[cpu->ip ++];
         switch(sign)
@@ -165,16 +166,16 @@ static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
         switch(sign)
         {
             case '+':
-                index += cpu->regs[*((int *) (code + cpu->ip))];
+                index += cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '-':
-                index -= cpu->regs[*((int *) (code + cpu->ip))];
+                index -= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '*':
-                index *= cpu->regs[*((int *) (code + cpu->ip))];
+                index *= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '/':
-                index /= cpu->regs[*((int *) (code + cpu->ip))];
+                index /= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
         }
         cpu->ip += sizeof(int);

@@ -135,7 +135,8 @@ int parseOperand(char *regsRAM, Header *header, char *code, int num)
     {
         parsingForRAM(regsRAM + 1, header, code, num);
     }
-    else{
+    else
+    {
         code[header->code_length++] = (num | IS_REG);
         header->real_length ++;
         writeInt(code, header, regsRAM[0] - 'a');
@@ -150,7 +151,7 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binary_code, int c
     char sign      = 0;
     int  num       = 0;
     int second_num = 0;
-    int status = sscanf(regsRAM, "%d %c %d", &num, &sign, &second_num) - (sign == 93);
+    int status     = sscanf(regsRAM, "%d %c %d", &num, &sign, &second_num) - (sign == 93); // ']' = 93
     
     if (status == 0)
     {
@@ -293,6 +294,7 @@ int getLabeles(Text *command, Label_array *marks)
             }
 
             int sscanf_status = sscanf(command->text[i].string + 1, "%s", marks->label[marks->labeles_amount].name);
+            
             if (sscanf_status)
             {
                 marks->label[marks->labeles_amount++].ip_number = getMarks_ip;

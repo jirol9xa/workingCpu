@@ -1,0 +1,13 @@
+PUSH 5
+POP [2]
+PUSH 8
+POP ax
+PUSH ax
+PUSH 4
+DIV 
+OUT
+PUSH [16 / ax] 
+OUT
+PUSH [1 + 1]
+OUT
+HLT

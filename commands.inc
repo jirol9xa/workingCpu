@@ -227,28 +227,38 @@ DEF_CMD(19, SQRT, 0,
     stackPush(&(cpu->stk), value);
 })
 
+// DEF_CMD(20, CMPE, 2,             // this is not final version of CMPE    
+// {                                // but now i understand, that it'i not necessary
+//     int left  = 0,
+//         right = 0;
 
-/*#define DEF_IFJMP(name, sign)                                 \
-    DEF_CMD('sign', name, 1,                                    \
-    {                                                           \
-        int first = 0;                                          \
-        int second = 0;                                         \
-        stackPop(&(cpu->stk), &first);                          \
-        stackPop(&(cpu->stk), &second);                         \
-        if (second sign first)                                  \
-        {                                                       \
-            cpu->ip = *((int *) (code + cpu->ip));              \
-            is_debug_lvl_0(cpu->real_ip ++);                    \
-        }                                                       \
-        else                                                    \
-        {                                                       \
-            cpu->ip += sizeof(int);                             \
-            cpu->real_ip ++;                                    \
-        }                                                       \
-    })
-DEF_IFJMP(JA, >);
-DEF_IFJMP(JAE, >=);
-DEF_IFJMP(JB, <);
-DEF_IFJMP(JBE, <=);
-DEF_IFJMP(JE, ==);
-DEF_IFJMP(JNE, !=);*/
+//     stackPop(&(cpu->str), &rigth);
+//     stackPop(&(cpu->stk), &left);
+
+//     stackPush(&(cpu->stk), left == right)
+// })
+
+// #define DEF_IFJMP(name, sign)                                 \
+    // DEF_CMD('sign', name, 1,                                    \
+    // {                                                           \
+        // int first = 0;                                          \
+        // int second = 0;                                         \
+        // stackPop(&(cpu->stk), &first);                          \
+        // stackPop(&(cpu->stk), &second);                         \
+        // if (second sign first)                                  \
+        // {                                                       \
+            // cpu->ip = *((int *) (code + cpu->ip));              \
+            // is_debug_lvl_0(cpu->real_ip ++);                    \
+        // }                                                       \
+        // else                                                    \
+        // {                                                       \
+            // cpu->ip += sizeof(int);                             \
+            // cpu->real_ip ++;                                    \
+        // }                                                       \
+    // })
+// DEF_IFJMP(JA, >);
+// DEF_IFJMP(JAE, >=);
+// DEF_IFJMP(JB, <);
+// DEF_IFJMP(JBE, <=);
+// DEF_IFJMP(JE, ==);
+// DEF_IFJMP(JNE, !=);

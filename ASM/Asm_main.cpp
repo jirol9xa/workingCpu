@@ -17,7 +17,7 @@
 #include "../ASM/Asm.h"
 
 
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {   
     is_debug_lvl_0(
         if (openLogs())
@@ -27,14 +27,13 @@ int main(int argc, char **argv)
         }
     );
 
-    FILE *sourse = nullptr;
     if (argc < 2)
     {
         is_debug_lvl_0(writeLogs("!!! ERROR Can't run asm without sourse file !!!\n"));
         return 0;
     }
     
-    sourse = fopen(argv[1], "r");
+    FILE *sourse = fopen(argv[1], "r");
     FILE *binary = fopen("Binary", "wb");
 
     is_debug_lvl_0(
@@ -49,14 +48,16 @@ int main(int argc, char **argv)
     is_debug_lvl_0(CHECK_PTR(binary_code));
     
     Header header = {};
-    header.sign = 'HM';
-    header.ver = 0;
-    header.hash = 0;
+    header.sign   = 'HM';
+    header.ver    = 0;
+    header.hash   = 0;
 
     Label_array marks = {};
-    marks.label = (Label *) calloc(1, sizeof(Label));
-    marks.capacity = 1;
+    marks.label       = (Label *) calloc(1, sizeof(Label));
+    marks.capacity    = 1;
+
     getLabeles(&commands, &marks);
+    
     header.code_length += sizeof(Header);
     
     char CMD[32] = {};
@@ -75,15 +76,15 @@ int main(int argc, char **argv)
                 printReshetka();
             )
         }
-        else if (arg_amount == 0)
+        else if (arg_amount == 0)       // command without any args
         {
             if (getLine(str_buff, commands.text[i].string + strlen(CMD)) > 0)
             {
-                arg_amount = -1;
+                arg_amount = -1;        // if we have POP/PUSH [**] or POP/PUSH *x
             }
         }
 
-        if (CMD[0] == ':')
+        if (CMD[0] == ':')          
         {
             if (strncmp(CMD, ":CALL", strlen(":CALL")) == 0)
             {
@@ -137,7 +138,7 @@ int main(int argc, char **argv)
             }                                                                                               \
             else                                                                                            \
             {                                                                                               \
-                binary_code[header.code_length ++] = CMD_##name;                                            \
+                binary_code[header.code_length ++] = CMD_##name;    /* CMD_##name = num*/                   \
                 header.real_length ++;                                                                      \
                 is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                    \
             }                                                                                               \
