@@ -16,13 +16,14 @@
 #include "../stackLib.h"
 #include "Asm.h"
 
+#define PRINT_LINE fprintf(stderr, "[%s:%d]\n", __func__, __LINE__);
 
 
 static int parsingForRAM(char *regsRAM, Header *header, char *binary_code, int num);
 static int Atoi(char *number, int size);
 static int resizeLabelArr(Label_array *lables);
 static void writeInt(char *binary_code, Header *header, int value);
-
+static int calcRamRegFunc(Line string);
 
 
 static int Atoi(char *number, int size = 0)
@@ -103,6 +104,8 @@ is_debug_lvl_0(
                 writeLogs("ERRASM_NO_HLT\n");
                 break;
         }
+
+        return 0;
     }
 )
 
@@ -125,6 +128,8 @@ int getLine(char *dest, char *sourse)
         dest[i] = sourse[i + j];
     }
 
+    fprintf(stderr, "i = %d, sourse = %s\n", i, sourse);
+
     return i;
 }
 
@@ -135,11 +140,19 @@ int parseOperand(char *regsRAM, Header *header, char *code, int num)
     {
         parsingForRAM(regsRAM + 1, header, code, num);
     }
-    else
+    else if (strchr("abcd", regsRAM[0]))
     {
+        PRINT_LINE;
+        fprintf(stderr, "[%s:%d]\n", __func__, __LINE__);
         code[header->code_length++] = (num | IS_REG);
         header->real_length ++;
         writeInt(code, header, regsRAM[0] - 'a');
+    }
+    else
+    {
+        code[header->code_length++] = num;
+        header->real_length ++;
+        PRINT_LINE;
     }
     
     return 0;
@@ -241,6 +254,8 @@ static int parsingForRAM(char *regsRAM, Header *header, char *binary_code, int c
         writeInt(binary_code, header, second_num);
 
     }
+
+    return 0;
 }
 
 
@@ -270,7 +285,8 @@ int getLabeles(Text *command, Label_array *marks)
             {                                                                                                               \
                 if (num_arg > 0)                                                                                            \
                 {                                                                                                           \
-                    getMarks_ip += 1 + sizeof(type_t);                                                                         \
+                    if (num == 8 || num == 2)   getMarks_ip += calcRamRegFunc(command->text[i]);                        \
+                    else                        getMarks_ip += 1 + sizeof(type_t);                                                                      \
                 }                                                                                                           \
                 else                                                                                                        \
                 {                                                                                                           \
@@ -325,6 +341,8 @@ int writeLabel(char *binary_code, Label_array *marks, char *mark_name, Header *h
     }
 
     writeLogs("!!! ERROR INVALID LABLE !!!\n");
+
+    return 0;
 }
 
 
@@ -340,6 +358,8 @@ int writeCall(char *func_name, Label_array *marks, Header *header, char *binary_
     }
 
     writeLogs("!!! ERROR INVALID LABLE !!!\n");
+
+    return 0;
 }
 
 
@@ -348,4 +368,94 @@ static void writeInt(char *binary_code, Header *header, int value)
     *((int *) (binary_code + header->code_length)) = value;
     header->code_length += sizeof(int);
     header->real_length ++;
+}
+
+
+static int calcRamRegFunc(Line line)
+{
+    //if (!line)    fprintf(stderr, "String if nullptr in [%s:%d]\n", __func__, __LINE__);
+
+    char *string = line.string;
+    PRINT_LINE;
+
+    char name[5] = {};
+    if (!sscanf(string, "%s", name))    fprintf(stderr, "Can't read name!\n");
+
+    string += strlen(name);
+
+    if (strlen(name) == line.length)    
+    {
+        fprintf(stderr, "Line = %s, offset = 1\n", line.string);
+        return 1;
+    }
+    else if (line.length == strlen(name) + 3)
+    {
+        char reg_name[8] = {};
+        if (sscanf(string, "%s", reg_name))
+        {
+            fprintf(stderr, "line = %s, offset = 5\n", line.string);            
+            return 5;
+        }
+    }
+    //fprintf(stderr, "cmd name = %s, string length = %d\n", name, line.length);
+
+    int offset = 0;
+
+    char sign      = 0;
+    int  num       = 0;
+    int second_num = 0;
+    int status     = sscanf(string, "%d %c %d", &num, &sign, &second_num) - (sign == 93); // ']' = 93
+    
+    if (status == 0)
+    {
+        char reg[32] = {};
+        status = sscanf(string, "%s %c %d", reg, &sign, &num) - (sign == 93);
+        if (status == 3 || status == 2) //reg and num || reg & reg
+        {
+
+            offset++;
+            offset++;
+            offset += sizeof(int);
+            offset++;
+            offset += sizeof(int);
+        }
+        else if (status == 1)  //reg
+        {
+            offset++;
+            offset++;
+            offset += sizeof(int);
+        }
+        else    // just POP
+        {
+            offset++;
+        }
+    }
+    else if (status == 1)   //num
+    {
+        offset++;
+        offset += sizeof(int);
+        PRINT_LINE;
+    }
+    else if (status == 2)  //num and reg
+    {
+        char reg[32] = {};
+        sscanf(string, "%d %c %s", &num, &sign, reg);
+        offset++;
+        offset++;
+        offset += sizeof(int);
+        offset++;
+        offset += sizeof(int);
+    }
+    else  //num and num
+    {
+        offset++;
+        offset++;
+        offset += sizeof(int);
+        offset++;
+        offset += sizeof(int);
+    }
+
+    fprintf(stderr, "line = %s ----> offset = %d\n", line.string, offset);
+
+    return offset;
 }

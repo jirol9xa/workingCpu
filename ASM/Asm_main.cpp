@@ -81,7 +81,9 @@ int main(const int argc, const char **argv)
             if (getLine(str_buff, commands.text[i].string + strlen(CMD)) > 0)
             {
                 arg_amount = -1;        // if we have POP/PUSH [**] or POP/PUSH *x
+                PRINT_LINE;
             }
+            fprintf(stderr, "str_buff = %s, CMD = %s, arg_amount = %d\n", str_buff, CMD, arg_amount);
         }
 
         if (CMD[0] == ':')          
@@ -122,6 +124,8 @@ int main(const int argc, const char **argv)
                     is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                \
                     header.code_length += sizeof(int);                                                      \
                     header.real_length ++;                                                                  \
+                    PRINT_LINE;                                                                             \
+                    fprintf(stderr, "Ququ\n"); \
                 }                                                                                           \
                 else if (num >= CMD_JMP && num <= CMD_JNE)                                                  \
                 {                                                                                           \
@@ -135,10 +139,18 @@ int main(const int argc, const char **argv)
                     is_debug_lvl_0(list(CMD, str_buff,                                                      \
                                    (int) *(binary_code + header.code_length - sizeof(int) - 1), 1));        \
                 }                                                                                           \
+                else    \
+                {       \
+                    binary_code[header.code_length ++] = CMD_##name;    /* CMD_##name = num*/                   \
+                    fprintf(stderr, "%s here\n", CMD);                                                          \
+                    header.real_length ++;                                                                      \
+                    is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                    \
+                }   \
             }                                                                                               \
             else                                                                                            \
             {                                                                                               \
                 binary_code[header.code_length ++] = CMD_##name;    /* CMD_##name = num*/                   \
+                fprintf(stderr, "%s here\n", CMD);                                                          \
                 header.real_length ++;                                                                      \
                 is_debug_lvl_0(list(CMD, &arg, binary_code[header.code_length - 1], 0));                    \
             }                                                                                               \
@@ -163,8 +175,8 @@ int main(const int argc, const char **argv)
 
     fwrite(binary_code, sizeof(char) * (header.code_length + sizeof(Header)), 1, binary);
 
-    free(marks.label);
-    free(binary_code);
+    //free(marks.label);
+    //free(binary_code);
     fclose(sourse);
     fclose(binary);
     finish_text(&commands);

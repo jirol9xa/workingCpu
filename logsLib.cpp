@@ -23,6 +23,8 @@ int openLogs()
 int closeLogs()
 {
     fclose(logs);
+
+    return 0;
 }
 
 

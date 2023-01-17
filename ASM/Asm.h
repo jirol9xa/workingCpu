@@ -26,6 +26,10 @@
 
     #endif
 
+
+    #define PRINT_LINE fprintf(stderr, "[%s:%d]\n", __func__, __LINE__);
+
+
     int getLine(char *dest, char *sourse);
 
     int parseOperand(char *regsRAM, Header *header, char *code, int num);

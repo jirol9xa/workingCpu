@@ -53,20 +53,20 @@
 
             #if (DEBUG_LVL > 0)
                 #define STACK_CREATION_INFO(stack) {                                                                  \
-                    writeLogs("Stack \"%s\" was created in function \"%s\" on line %d."                           \
-                    "Adress %p with addrreess of data: %p\n\n\n", #stack, __PRETTY_FUNCTION__, __LINE__,              \
-                    stack, stack->data);                                                                              \
+                    /*writeLogs("Stack \"%s\" was created in function \"%s\" on line %d." */                          \
+                    /*"Adress %p with addrreess of data: %p\n\n\n", #stack, __PRETTY_FUNCTION__, __LINE__,   */           \
+                    /*stack, stack->data);*/                                                                              \
                 }
 
                 #define STACK_DUMP(stack) {                                                                           \
-                    verifyStack(stack);                                                                               \
+                    /*verifyStack(stack);*/                                                                               \
                     stackDump(stack, __func__, #stack);                                                               \
                 }   
 
 
                 #define CHECK_PTR(arg) {                                                                              \
                     if (!(arg)) {                                                                                     \
-                        writeLogs("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg);                       \
+                        /*writeLogs("[%s:%d] --- %s failed\n\n\n", __func__, __LINE__, #arg); */                      \
                         return ERR_INVALID_PTR;                                                                       \
                     }                                                                                                 \
                 }
@@ -78,12 +78,12 @@
                 #define FUNC_REPORT(func, stack) {                                                                    \
                     int status = (int) func;                                                                          \
                     if (status) {                                                                                     \
-                        writeLogs("########################################################################\n"    \
-                                    "function \"%s\" was failed with error code:\n", #func);                          \
+                        /*writeLogs("########################################################################\n"*/    \
+                        /*            "function \"%s\" was failed with error code:\n", #func);*/                          \
                         printError(status);                                                                           \
-                        writeLogs("\nStack is:\n");                                                               \
+                        /*writeLogs("\nStack is:\n"); */                                                              \
                         STACK_DUMP(stack)                                                                             \
-                        writeLogs("########################################################################\n\n");\
+                        /*writeLogs("########################################################################\n\n");*/\
                     }                                                                                                 \
                 }
 
@@ -212,34 +212,35 @@
     {   
         is_debug_lvl_0(CHECK_PTR(stk));
 
-        stk->capacity = (int) pow(2, (int) (log(capacity) / log(2)) + 1 );
+        //stk->capacity = (int) pow(2, (int) (log(capacity) / log(2)) + 1 );
+        stk->capacity = capacity;
         stk->data = (type_t*) calloc (1 , sizeof(type_t) * stk->capacity);
 
         is_debug_lvl_1(
-            void* temp_ptr = realloc(stk->data, sizeof(type_t) * stk->capacity + 2 * sizeof(u_int64_t));
-            if (temp_ptr == nullptr) {
-                return ERR_REALLOC_FAILED;
-            }
+            //void* temp_ptr = realloc(stk->data, sizeof(type_t) * stk->capacity + 2 * sizeof(u_int64_t));
+            //if (temp_ptr == nullptr) {
+            //    return ERR_REALLOC_FAILED;
+            //}
 
-            stk->data = (type_t*) ((char*) temp_ptr + sizeof(u_int64_t));
-            stk->egg     = CANARY(stk);
-            stk->chicken = CANARY(stk);
+            //stk->data = (type_t*) ((char*) temp_ptr + sizeof(u_int64_t));
+            /*stk->egg     = CANARY(stk);
+            stk->chicken = CANARY(stk);*/
 
-            setCanary(stk, 1);
-            setCanary(stk, 0);
+            /*setCanary(stk, 1);
+            setCanary(stk, 0);*/
         )
 
-        for (int i = 0; i < stk->capacity; i++) {
-            stk->data[i] = POISON;
-        }
+        //for (int i = 0; i < stk->capacity; i++) {
+        //    stk->data[i] = POISON;
+        //}
 
-        is_debug_lvl_1( if (hashCalc(stk) == ERR_INVALID_PTR) return ERR_INVALID_PTR );
+        /*is_debug_lvl_1( if (hashCalc(stk) == ERR_INVALID_PTR) return ERR_INVALID_PTR );*/
 
-        is_debug_lvl_0(
-            STACK_CREATION_INFO(stk)
-            stk->status = EMPTY_STACK;
-            STACK_DUMP(stk)
-        )
+        //is_debug_lvl_0(
+        //    STACK_CREATION_INFO(stk)
+        //    stk->status = EMPTY_STACK;
+        //    STACK_DUMP(stk)
+        //)
 
         return 0;
     }
@@ -275,9 +276,10 @@
         )
 
         if (stk->size + 1 > stk->capacity) {
+            fprintf(stderr, "[%s:%d]\n", __func__, __LINE__);
             if (stackResize(stk, 1) == ERR_RESIZE_FAILED) {
                 is_debug_lvl_0(
-                writeLogs("Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
+                //writeLogs("Error in %s on %d line: not enough memory for stack\n\n\n", __FUNCTION__, __LINE__);
                 )
 
                 return ERR_PUSH_FAILED;
@@ -288,9 +290,9 @@
 
         MemCpy((char*) &stk->data[stk->size - 1], &value, sizeof(type_t));
 
-        is_debug_lvl_1(
+        /*is_debug_lvl_1(
             if (hashCalc(stk) == ERR_INVALID_PTR) return ERR_PUSH_FAILED;
-        )
+        )*/
 
         is_debug_lvl_0(
             STACK_DUMP(stk);
@@ -302,65 +304,69 @@
 
     static int stackResize(Stack* stk, int upper) 
     {
-        is_debug_lvl_0(CHECK_PTR(stk)
+        /*is_debug_lvl_0(CHECK_PTR(stk)
                     STACK_DUMP(stk)
                     ASSERT_OK(stk)
-        )
+        )*/
 
         if (upper) {
             void* temp_ptr = nullptr;
             if (stk->capacity == 0) {
                 stk->capacity = 1;
                 
-                #if DEBUG_LVL < 1
-                    temp_ptr = realloc(stk->data, sizeof(type_t));
-                #endif
-                is_debug_lvl_1(temp_ptr = realloc(LEFT_CANARY(stk), sizeof(type_t) + sizeof(u_int64_t) * 2 ));
+                //#if DEBUG_LVL < 1
+                //    temp_ptr = realloc(stk->data, sizeof(type_t));
+                //#endif
+                //is_debug_lvl_1(temp_ptr = realloc(LEFT_CANARY(stk), sizeof(type_t) + sizeof(u_int64_t) * 2 ));
+
+                temp_ptr = realloc(stk->data, sizeof(type_t));
 
                 if (temp_ptr != nullptr) {
-                    stk->data = (type_t*) ((char*)temp_ptr + sizeof(u_int64_t));
+                    stk->data = (type_t*) ((char*)temp_ptr);
 
-                    is_debug_lvl_1(
+                    /*is_debug_lvl_1(
                         setCanary(stk, 1);
                         setCanary(stk, 0);   
-                    )
-                    for (int i = stk->size; i < stk->capacity; i++) {
-                        stk->data[i] = POISON;
-                    }
-                    is_debug_lvl_0(stk->status &= !EMPTY_STACK);
-                    is_debug_lvl_1(hashCalc(stk));
-                    is_debug_lvl_0(STACK_DUMP(stk));
+                    )*/
+                    //for (int i = stk->size; i < stk->capacity; i++) {
+                    //    stk->data[i] = POISON;
+                    //}
+                    //is_debug_lvl_0(stk->status &= !EMPTY_STACK);
+                    ///*is_debug_lvl_1(hashCalc(stk));*/
+                    //is_debug_lvl_0(STACK_DUMP(stk));
                     return 0;
                 }
                 else {
 
-                    is_debug_lvl_0(STACK_DUMP(stk));
+                    //is_debug_lvl_0(STACK_DUMP(stk));
                     
-                    return ERR_RESIZE_FAILED;
+                    //return ERR_RESIZE_FAILED;
                 }
             }
             
             #if DEBUG_LVL < 1
                 temp_ptr = realloc(stk->data, sizeof(type_t) * 2 * stk->capacity);
             #endif
-            is_debug_lvl_1(temp_ptr = realloc(LEFT_CANARY(stk), sizeof(type_t) * 2 * stk->capacity  + sizeof(u_int64_t) * 2));
+            //is_debug_lvl_1(temp_ptr = realloc(LEFT_CANARY(stk), sizeof(type_t) * 2 * stk->capacity  + sizeof(u_int64_t) * 2));
+
+            temp_ptr = realloc(stk->data, sizeof(type_t) * 2 * stk->capacity);
 
             if (temp_ptr != nullptr) {
                 stk->capacity *= 2;
-                is_debug_lvl_1(stk->data = (type_t*) ((char*) temp_ptr + sizeof(u_int64_t)));
+                is_debug_lvl_1(stk->data = (type_t*) ((char*) temp_ptr));
 
-                is_debug_lvl_1(
+                /*is_debug_lvl_1(
                     setCanary(stk, 0);
-                )
+                )*/
                     
-                for (int i = stk->size; i < stk->capacity; i++) {
-                    stk->data[i] = POISON;
-                }
+                //for (int i = stk->size; i < stk->capacity; i++) {
+                //    stk->data[i] = POISON;
+                //}
 
-                is_debug_lvl_1(
+                /*is_debug_lvl_1(
                     if (hashCalc(stk) == ERR_INVALID_PTR) return ERR_INVALID_PTR;
                 )
-                is_debug_lvl_0(STACK_DUMP(stk));
+                is_debug_lvl_0(STACK_DUMP(stk));*/
 
                 return 0;
             }
@@ -372,9 +378,9 @@
         }
         else {
             is_debug_lvl_1(
-                realloc(LEFT_CANARY(stk), sizeof(type_t) * (stk->capacity / 2) + 2 * sizeof(u_int64_t));
-                setCanary(stk, 0);
-                hashCalc(stk);
+                realloc(stk->data, sizeof(type_t) * (stk->capacity / 2));
+                /*setCanary(stk, 0);*/
+                /*hashCalc(stk);*/
             )
 
             #if DEBUG_LVL <= 1
@@ -403,17 +409,17 @@
         MemCpy(param, &(stk->data[stk->size]), sizeof(type_t));
         stk->data[stk->size] = POISON;
 
-        while (stk->capacity / 2 - stk->size > 3) {
-            is_debug_lvl_1(
-                hashCalc(stk);
-            )
+        // while (stk->capacity / 2 - stk->size > 3) {
+        //     /*is_debug_lvl_1(
+        //         hashCalc(stk);
+        //     )*/
 
-            FUNC_REPORT(stackResize(stk, 0), stk)
-        }
+        //     FUNC_REPORT(stackResize(stk, 0), stk)
+        // }
 
-        is_debug_lvl_1(hashCalc(stk));
+        /*is_debug_lvl_1(hashCalc(stk));*/
 
-        is_debug_lvl_0(STACK_DUMP(stk));
+        //is_debug_lvl_0(STACK_DUMP(stk));
 
         return 0;
     }
@@ -460,25 +466,25 @@
 
 
         void stackDump(const Stack* stk, const char* func_name, const char* stack_name) {
-            writeLogs("Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
-            writeLogs("---------------------------------------------------------------------------------\n");
-            writeLogs("STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
-                    "data [%p]\n", (stk->status == OK || stk->status == EMPTY_STACK) ? "OK" : "BROKEN", stk->size, stk->capacity, stk->data);
+            //writeLogs("Stack <> adress[%p] \"%s\" at %s\n", stk, stack_name, func_name);
+            //writeLogs("---------------------------------------------------------------------------------\n");
+            //writeLogs("STATUS = %16s\n" "stack size = %12d\n" "stack capacity = %8d\n" 
+            //        "data [%p]\n", (stk->status == OK || stk->status == EMPTY_STACK) ? "OK" : "BROKEN", stk->size, stk->capacity, stk->data);
 
             if (stk->status){
                 printError(stk->status);
-                writeLogs("\n");
+                //writeLogs("\n");
             }
             else {
                 for (int i = 0; i < stk->size; i++){
-                    writeLogs("*data[%d] = %d\n", i, stk->data[i]);
+                    //writeLogs("*data[%d] = %d\n", i, stk->data[i]);
                 }
                 for (int i = stk->size; i < stk->capacity; i++){
-                    writeLogs("*data[%d] = %X\n", i, stk->data[i]);
+                    //writeLogs("*data[%d] = %X\n", i, stk->data[i]);
                 }
             }
 
-            writeLogs("---------------------------------------------------------------------------------\n\n\n");
+            //writeLogs("---------------------------------------------------------------------------------\n\n\n");
             FFlush();
         }   
 
@@ -594,42 +600,42 @@
     is_debug_lvl_0(
         void printError(int Error) 
         {
-            if (Error & 1) 
-                writeLogs("ERR_CALLING_FUNC_FAILED ");
-            if (Error & (1 << 1))
-                writeLogs("ERR_STACK_ALREARY_CREATED ");
-            if (Error & (1 << 2))
-                writeLogs("ERR_EMPTY_ELEM_ISNT_POISONED ");
-            if (Error & (1 << 3))
-                writeLogs("ERR_SIZE_GREATER_CAPACITY ");
-            if (Error & (1 << 4))
-                writeLogs("ERR_POP_EMPTY_STACK ");
-            if (Error & (1 << 5))
-                writeLogs("ERR_RIGHT_CANARY_DAMAGED ");
-            if (Error & (1 << 6))
-                writeLogs("ERR_LEFT_CANARY_DAMAGED ");
-            if (Error & (1 << 7))
-                writeLogs("ERR_WRONG_HASH ");
-            if (Error & (1 << 8))
-                writeLogs("ERR_INVALID_PTR ");
-            if (Error & (1 << 9))
-                writeLogs("ERR_REALLOC_FAILED ");
-            if (Error & (1 << 10))
-                writeLogs("ERR_PUSH_FAILED ");
-            if (Error & (1 << 11))
-                writeLogs("ERR_STACK_ALREADY_CLEANED ");
-            if (Error & (1 << 12))
-                writeLogs("ERR_LEFT_DATACANARY_DAMAGED ");
-            if (Error & (1 << 13))
-                writeLogs("ERR_RIGHT_DATACANARY_DAMAGED ");
-            if (Error & (1 << 14))
-                writeLogs("ERR_RESIZE_FAILED ");
-            if (Error & (1 << 15))
-                writeLogs("ERR_POP_FAILED ");
-            if (Error & (1 << 16))
-                writeLogs("ERR_DUMP_FAILED ");
-            if (Error & (1 << 17))
-                writeLogs("ERR_STACK_BROKEN ");
+            //if (Error & 1) 
+            //    //writeLogs("ERR_CALLING_FUNC_FAILED ");
+            //if (Error & (1 << 1))
+            //    //writeLogs("ERR_STACK_ALREARY_CREATED ");
+            //if (Error & (1 << 2))
+            //    //writeLogs("ERR_EMPTY_ELEM_ISNT_POISONED ");
+            //if (Error & (1 << 3))
+            //    //writeLogs("ERR_SIZE_GREATER_CAPACITY ");
+            //if (Error & (1 << 4))
+            //    //writeLogs("ERR_POP_EMPTY_STACK ");
+            //if (Error & (1 << 5))
+            //    //writeLogs("ERR_RIGHT_CANARY_DAMAGED ");
+            //if (Error & (1 << 6))
+            //    //writeLogs("ERR_LEFT_CANARY_DAMAGED ");
+            //if (Error & (1 << 7))
+            //    //writeLogs("ERR_WRONG_HASH ");
+            //if (Error & (1 << 8))
+            //    //writeLogs("ERR_INVALID_PTR ");
+            //if (Error & (1 << 9))
+            //    //writeLogs("ERR_REALLOC_FAILED ");
+            //if (Error & (1 << 10))
+            //    //writeLogs("ERR_PUSH_FAILED ");
+            //if (Error & (1 << 11))
+            //    //writeLogs("ERR_STACK_ALREADY_CLEANED ");
+            //if (Error & (1 << 12))
+            //    //writeLogs("ERR_LEFT_DATACANARY_DAMAGED ");
+            //if (Error & (1 << 13))
+            //    //writeLogs("ERR_RIGHT_DATACANARY_DAMAGED ");
+            //if (Error & (1 << 14))
+            //    //writeLogs("ERR_RESIZE_FAILED ");
+            //if (Error & (1 << 15))
+            //    //writeLogs("ERR_POP_FAILED ");
+            //if (Error & (1 << 16))
+            //    //writeLogs("ERR_DUMP_FAILED ");
+            //if (Error & (1 << 17))
+            //    //writeLogs("ERR_STACK_BROKEN ");
         }
     )
 

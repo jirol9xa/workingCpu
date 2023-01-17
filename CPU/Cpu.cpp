@@ -23,36 +23,36 @@ is_debug_lvl_0(
     */
     static void cpuDump(CPU *cpu, char *binary_code, Header *header)
     {
-        printReshetka();
-        printReshetka();
-        printReshetka();
-        writeLogs("        ");
+        //PrintReshetka();
+        //PrintReshetka();
+        //PrintReshetka();
+        //writeLogs("        ");
         for (int i = 0; i < cpu->real_size; i++)
         {
-            writeLogs(" %2d", i);
+            //writeLogs(" %2d", i);
         }
-        writeLogs("\n");
-        writeLogs("Commands");
+        //writeLogs("\n");
+        //writeLogs("Commands");
         for (int i = 0; i < header->code_length; i++)
         {
-            writeLogs(" %2d", (int) binary_code[i]);                                                                                                                              
+            //writeLogs(" %2d", (int) binary_code[i]);                                                                                                                              
             if ((binary_code[i] && IS_REG) != 0 || (binary_code[i] && IS_RAM) != 0)       
             {                                   
                 i ++;                                                      
-                writeLogs(" %2d", *((int *) (binary_code + i)));                            
+                //writeLogs(" %2d", *((int *) (binary_code + i)));                            
                 i += sizeof(int) - 1;                                                               
             }                                                                                                                                                                                      
         }
-        writeLogs("\n");
-        writeLogs("%*s----------- current command\n", cpu->real_ip * 3 + 8, "^");
+        //writeLogs("\n");
+        //writeLogs("%*s----------- current command\n", cpu->real_ip * 3 + 8, "^");
 
-        writeLogs("Regs\n" "ax --- %d\n" "bx --- %d\n" "cx --- %d\n" "dx --- %d\n", cpu->regs[0], 
-                cpu->regs[1], cpu->regs[2], cpu->regs[3]);
+        //writeLogs("Regs\n" "ax --- %d\n" "bx --- %d\n" "cx --- %d\n" "dx --- %d\n", cpu->regs[0], 
+        //        cpu->regs[1], cpu->regs[2], cpu->regs[3]);
         
-        printReshetka();
-        printReshetka();
-        printReshetka();
-        writeLogs("\n\n\n");
+        //PrintReshetka();
+        //PrintReshetka();
+        //PrintReshetka();
+        //writeLogs("\n\n\n");
     }
 )
 
@@ -61,8 +61,8 @@ int createCpu(CPU *cpu)
 {
     CHECK_PTR(cpu);
 
-    stackCtor(&(cpu->stk), 0);
-    stackCtor(&(cpu->ret), 0);
+    stackCtor(&(cpu->stk), 100);
+    stackCtor(&(cpu->ret), 100);
     return 0;
 }
 
@@ -92,7 +92,7 @@ int processing(Header *header, char *code, CPU *cpu)
             #define DEF_CMD(num, name, num_args, cmd_code)                                                       \
             case CMD_##name:                                                                                     \
                 is_debug_lvl_0(cpu->real_ip ++);                                                                 \
-                is_debug_lvl_0(cpuDump(cpu, code, header));                                                      \
+                /*is_debug_lvl_0(cpuDump(cpu, code, header));*/                                                      \
                 cmd_code;                                                                                        \
             break;
 
@@ -106,28 +106,28 @@ int processing(Header *header, char *code, CPU *cpu)
 
 static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
 {
-    sleep(0.5);     // to delay memory access
+    //sleep(0.5);     // to delay memory access
 
     int num_arguments = code[cpu->ip ++];
     int index = 0;
     if ((num_arguments & IS_REG) != 0 && (num_arguments & IS_RAM) != 0)
     {
-        index += cpu->regs[*((int *) (code + cpu->ip))];
+        index += cpu->regs[*((int *) (code + cpu->ip))] / 1000;
         cpu->ip += sizeof(int);
         char sign = code[cpu->ip ++];
         switch(sign)
         {
             case '+':
-                index += cpu->regs[*((int *) (code + cpu->ip))];
+                index += cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '-':
-                index -= cpu->regs[*((int *) (code + cpu->ip))];
+                index -= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '*':
-                index *= cpu->regs[*((int *) (code + cpu->ip))];
+                index *= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
             case '/':
-                index /= cpu->regs[*((int *) (code + cpu->ip))];
+                index /= cpu->regs[*((int *) (code + cpu->ip))] / 1000;
                 break;
         }
         cpu->ip += sizeof(int);
@@ -154,6 +154,7 @@ static int workWithParsedRAM(CPU *cpu, char *code, bool is_pop)
                 index /= *((int *) (code + cpu->ip));
                 break;
         }
+        fprintf(stderr, "index = %d, elem = %d\n", index, cpu->RAM[index]);
         cpu->ip += sizeof(int);
         (is_pop) ? stackPop(&(cpu->stk), &(cpu->RAM[index])) : stackPush(&(cpu->stk), cpu->RAM[index]);
         return 0;
